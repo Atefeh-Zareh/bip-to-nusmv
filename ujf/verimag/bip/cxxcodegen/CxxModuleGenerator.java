@@ -1,0 +1,301 @@
+/*     */ package ujf.verimag.bip.cxxcodegen;
+/*     */ 
+/*     */ import java.io.File;
+/*     */ import java.io.FileOutputStream;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.Date;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import ujf.verimag.bip.Core.Behaviors.AtomType;
+/*     */ import ujf.verimag.bip.Core.Behaviors.BipType;
+/*     */ import ujf.verimag.bip.Core.Behaviors.PortType;
+/*     */ import ujf.verimag.bip.Core.Interactions.CompoundType;
+/*     */ import ujf.verimag.bip.Core.Interactions.ConnectorType;
+/*     */ import ujf.verimag.bip.Core.Modules.Declaration;
+/*     */ import ujf.verimag.bip.Core.Modules.Module;
+/*     */ import ujf.verimag.bip.Core.Modules.OpaqueElement;
+/*     */ import ujf.verimag.bip.Core.Modules.Package;
+/*     */ import ujf.verimag.bip.Core.Modules.Root;
+/*     */ import ujf.verimag.bip.Core.Modules.System;
+/*     */ import ujf.verimag.bip.cgeneration.CConstruct;
+/*     */ import ujf.verimag.bip.cgeneration.CFileGen;
+/*     */ import ujf.verimag.bip.cmodel.CHeaderText;
+/*     */ import ujf.verimag.bip.cmodel.CModule;
+/*     */ import ujf.verimag.bip.cmodel.CText;
+/*     */ import ujf.verimag.bip.cmodel.CmodelFactory;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class CxxModuleGenerator
+/*     */ {
+/*     */   String fileName;
+/*  42 */   String bip_topName = null;
+/*     */   
+/*  44 */   protected CmodelFactory cFactory = CmodelFactory.eINSTANCE;
+/*  45 */   protected CConstruct cBuilder = new CConstruct(this.cFactory);
+/*  46 */   protected CxxExpressionGenerator expGen = new CxxExpressionGenerator(this.cBuilder);
+/*  47 */   protected CxxStatementGenerator stmGen = new CxxStatementGenerator(this.cBuilder, this.expGen);
+/*  48 */   protected CxxPortTypeGenerator portTypeGen = new CxxPortTypeGenerator(this.cBuilder);
+/*  49 */   protected CxxAtomTypeGenerator atomTypeGen = new CxxAtomTypeGenerator(this.cBuilder, this.expGen, this.stmGen);
+/*  50 */   protected CxxCompoundTypeGenerator compoundTypeGen = new CxxCompoundTypeGenerator(this.cBuilder, this.expGen, this.stmGen);
+/*  51 */   protected CxxConnectorTypeGenerator connectorTypeGen = new CxxConnectorTypeGenerator(this.cBuilder, this.expGen, this.stmGen);
+/*     */ 
+/*     */   
+/*     */   protected Module bipModel;
+/*     */ 
+/*     */   
+/*     */   boolean bip_codegenOpt;
+/*     */ 
+/*     */   
+/*     */   boolean bip_platformOpt;
+/*     */ 
+/*     */   
+/*     */   private Map libFullNames;
+/*     */   
+/*     */   private List includeDirs;
+/*     */   
+/*     */   boolean bip_debug;
+/*     */ 
+/*     */   
+/*     */   public void setDebug(boolean debug) {
+/*  71 */     this.bip_debug = debug;
+/*  72 */     this.atomTypeGen.setDebug(this.bip_debug);
+/*  73 */     this.compoundTypeGen.setDebug(this.bip_debug);
+/*  74 */     this.connectorTypeGen.setDebug(this.bip_debug);
+/*  75 */     this.portTypeGen.setDebug(this.bip_debug);
+/*     */   }
+/*     */   
+/*     */   public CxxModuleGenerator(String fileName, Map libFullNames, List includeDirs) {
+/*  79 */     this.fileName = fileName;
+/*  80 */     this.libFullNames = libFullNames;
+/*  81 */     this.includeDirs = includeDirs;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   private void genHeaderInclude(CModule module) {
+/*  99 */     module.getCImport().add(this.cBuilder.createInclude("<stdio.h>"));
+/* 100 */     if (this.bip_codegenOpt) {
+/* 101 */       module.getCImport().add(this.cBuilder.createInclude("<stdlib.h>"));
+/*     */     }
+/* 103 */     if (this.bip_codegenOpt || this.bip_debug) {
+/* 104 */       module.getCImport().add(this.cBuilder.createInclude("<string.h>"));
+/*     */     }
+/*     */     
+/* 107 */     module.getCImport().add(this.cBuilder.createInclude("\"bip.h\""));
+/* 108 */     if (this.bip_debug) {
+/* 109 */       module.getCImport().add(this.cBuilder.createInclude("\"debug.h\""));
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void visit(Module c, String topName, boolean verif, boolean multiThread) {
+/* 116 */     visit(c, topName, verif, multiThread, false, c.getSrcFileName());
+/*     */   }
+/*     */ 
+/*     */   
+/*     */   public void visit(Module c, String topName, boolean verif, boolean multiThread, boolean forTest) {
+/* 121 */     visit(c, topName, verif, multiThread, forTest, c.getSrcFileName());
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void visit(Module m, String topName, boolean verif, boolean multiThread, boolean forTest, String fileName) {
+/* 131 */     String bipHeader = "// source file automatically generated by BIP tool\n// from BIP description " + m.getSrcFileName() + "\n" + "// generation date " + (new Date(System.currentTimeMillis())).toString() + "\n";
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/* 136 */     CModule cModule = this.cFactory.createCModule();
+/* 137 */     this.bipModel = m;
+/* 138 */     this.bip_topName = topName;
+/* 139 */     this.bip_codegenOpt = verif;
+/* 140 */     this.bip_platformOpt = multiThread;
+/* 141 */     this.atomTypeGen.setForVerification(verif);
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/* 148 */     genHeaderInclude(cModule);
+/*     */     
+/* 150 */     for (Iterator<Package> iterator1 = m.getUsedPackage().iterator(); iterator1.hasNext(); ) {
+/* 151 */       Package p = iterator1.next();
+/* 152 */       String fullName = (String)this.libFullNames.get(p.getName());
+/* 153 */       if (fullName == null) {
+/* 154 */         fullName = p.getSrcFileName();
+/*     */       }
+/* 156 */       cModule.getCImport().add(this.cBuilder.createInclude("\"" + fullName + ".bip.h\""));
+/*     */     } 
+/*     */ 
+/*     */     
+/* 160 */     if (this.bipModel instanceof Package) {
+/* 161 */       cModule.setNamespace(this.bipModel.getName());
+/*     */     }
+/*     */ 
+/*     */     
+/* 165 */     for (Iterator<Declaration> iterator = m.getDeclaration().iterator(); iterator.hasNext(); ) {
+/* 166 */       Declaration decl = iterator.next();
+/* 167 */       if (decl instanceof OpaqueElement) {
+/* 168 */         OpaqueElement op = (OpaqueElement)decl;
+/*     */         
+/* 170 */         if (op.isIsHeader()) {
+/* 171 */           CHeaderText cHeaderText = this.cBuilder.createCHeaderText(op.getBody());
+/* 172 */           cModule.getContent().add(cHeaderText);
+/*     */           
+/*     */           continue;
+/*     */         } 
+/* 176 */         CText cText = this.cBuilder.createCCode(op.getBody());
+/* 177 */         cText.setInBodyFile(true);
+/* 178 */         cModule.getContent().add(cText);
+/*     */       } 
+/*     */     } 
+/*     */ 
+/*     */ 
+/*     */     
+/* 184 */     for (Iterator<BipType> i = m.getBipType().iterator(); i.hasNext(); ) {
+/* 185 */       BipType bt = i.next();
+/* 186 */       if (bt instanceof PortType) {
+/* 187 */         PortType pt = (PortType)bt;
+/* 188 */         this.portTypeGen.generateType(pt, cModule); continue;
+/* 189 */       }  if (bt instanceof AtomType) {
+/* 190 */         AtomType pt = (AtomType)bt;
+/* 191 */         this.atomTypeGen.generateType(pt, cModule, multiThread); continue;
+/* 192 */       }  if (bt instanceof ConnectorType) {
+/* 193 */         ConnectorType ct = (ConnectorType)bt;
+/* 194 */         this.connectorTypeGen.generateType(ct, cModule); continue;
+/* 195 */       }  if (bt instanceof CompoundType) {
+/* 196 */         CompoundType ct = (CompoundType)bt;
+/* 197 */         this.compoundTypeGen.generateType(ct, cModule, multiThread); continue;
+/* 198 */       }  if (bt instanceof OpaqueElement) {
+/* 199 */         OpaqueElement op = (OpaqueElement)bt;
+/* 200 */         cModule.getContent().add(this.cBuilder.createCCode(op.getBody()));
+/*     */       } 
+/*     */     } 
+/*     */     
+/* 204 */     if (this.bipModel instanceof System) {
+/* 205 */       System sys = (System)this.bipModel;
+/* 206 */       Root root = sys.getRoot();
+/*     */       
+/* 208 */       this.compoundTypeGen.generateRoot(root, cModule);
+/*     */     } 
+/*     */     try {
+/*     */       boolean isLib;
+/* 212 */       CFileGen fileGenerator = new CFileGen(fileName);
+/* 213 */       if (!forTest) {
+/* 214 */         fileGenerator.setHeader(bipHeader);
+/*     */       }
+/* 216 */       fileGenerator.generateSource(cModule);
+/* 217 */       fileGenerator.terminate();
+/*     */       
+/* 219 */       if (this.bipModel instanceof Package) {
+/* 220 */         isLib = true;
+/*     */       } else {
+/*     */         
+/* 223 */         isLib = false;
+/*     */       } 
+/* 225 */       generateMakefile(fileName, isLib, multiThread);
+/*     */     }
+/* 227 */     catch (IOException e) {
+/* 228 */       System.err.println("Error creating file " + fileName + ".[C/h]");
+/*     */     } 
+/*     */   }
+/*     */ 
+/*     */   
+/*     */   void generateMakefile(String fileName, boolean isLib, boolean multiThread) {
+/*     */     String resourceName;
+/* 235 */     if (isLib)
+/* 236 */     { if (multiThread) { resourceName = "/Makelib_multi.temp"; }
+/* 237 */       else { resourceName = "/Makelib.temp"; }
+/*     */       
+/*     */        }
+/* 240 */     else if (multiThread) { resourceName = "/Makefile_multi.temp"; }
+/* 241 */     else { resourceName = "/Makefile.temp"; }
+/*     */     
+/*     */     try {
+/* 244 */       InputStream is = getClass().getResourceAsStream(resourceName);
+/* 245 */       assert is != null;
+/* 246 */       String makefileFileName = (new File(fileName)).getName() + ".mk";
+/* 247 */       FileOutputStream mkFile = new FileOutputStream(makefileFileName);
+/* 248 */       PrintStream mkStream = new PrintStream(mkFile);
+/*     */ 
+/*     */       
+/* 251 */       mkStream.print("OBJS = ");
+/* 252 */       for (Iterator<String> i = this.libFullNames.keySet().iterator(); i.hasNext(); ) {
+/* 253 */         String k = i.next();
+/* 254 */         String fullName = (String)this.libFullNames.get(k);
+/* 255 */         mkStream.print(fullName + ".bip.o ");
+/*     */       } 
+/*     */ 
+/*     */       
+/* 259 */       if (isLib) {
+/* 260 */         mkStream.println();
+/* 261 */         mkStream.println("DEST = " + fileName + ".o");
+/* 262 */         mkStream.println("SRC = " + fileName);
+/*     */       } else {
+/* 264 */         mkStream.println(fileName + ".o");
+/* 265 */         mkStream.println("DEST = " + fileName + ".x");
+/*     */       } 
+/* 267 */       mkStream.print("MODEL_INCLUDE = ");
+/* 268 */       if (this.includeDirs != null) {
+/* 269 */         for (Iterator<String> iterator = this.includeDirs.iterator(); iterator.hasNext(); ) {
+/* 270 */           String include = iterator.next();
+/* 271 */           mkStream.print(" -I" + include);
+/*     */         } 
+/*     */       }
+/*     */       
+/* 275 */       mkStream.println();
+/*     */       
+/* 277 */       mkStream.flush();
+/*     */       
+/* 279 */       byte[] buffer = new byte[524288];
+/*     */       try {
+/*     */         int nbLecture;
+/* 282 */         while ((nbLecture = is.read(buffer)) != -1) {
+/* 283 */           mkStream.print(new String(buffer, 0, nbLecture));
+/*     */         }
+/*     */       }
+/* 286 */       catch (IOException e) {
+/* 287 */         System.err.println("Error reading resource Makefile.temp");
+/*     */       }
+/*     */     
+/*     */     }
+/* 291 */     catch (IOException e) {
+/* 292 */       System.err.println("Error creating file " + fileName + ".mk");
+/*     */     } 
+/*     */   }
+/*     */ }
+
+
+/* Location:              C:\D\Workspace\VeriSolid\My-Changes\smart-contracts-fixes-extensions\verificationTools\bip-to-nusmv.jar\\ujf\verimag\bip\cxxcodegen\CxxModuleGenerator.class
+ * Java compiler version: 6 (50.0)
+ * JD-Core Version:       1.1.3
+ */
