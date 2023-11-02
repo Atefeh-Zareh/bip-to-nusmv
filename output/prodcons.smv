@@ -1,0 +1,68 @@
+MODULE P(active_interaction)
+
+	VAR
+		NuPprod		:		boolean;
+		NuPwork		:		boolean;
+		NuVx		:		signed word[13];
+		Nuplace		:		{NuSPRODUCE, NuSWORK};
+
+
+	INIT
+		( (NuVx) = (0sd13_010) ) &
+		( (Nuplace) = (NuSPRODUCE) );
+
+	INVAR
+		( (NuPwork) <-> (( (Nuplace) = (NuSWORK) )) ) &
+		( (NuPprod) <-> (( (Nuplace) = (NuSPRODUCE) )) );
+
+	TRANS
+		( (( (( (( (Nuplace) = (NuSPRODUCE) )) & (( (next(Nuplace)) = (NuSWORK) )) )) & (( (active_interaction) = (NuI1) )) )) & (( (next(NuVx)) = (NuVx) )) ) |
+		( (( (( (( (Nuplace) = (NuSWORK) )) & (( (next(Nuplace)) = (NuSPRODUCE) )) )) & (( (active_interaction) = (NuI2) )) )) & (( (next(NuVx)) = (( (NuVx) + (0sd13_01) )) )) ) |
+		( (( (active_interaction) != (NuI2) )) & (( (( (active_interaction) != (NuI1) )) & (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVx)) = (NuVx) )) )) )) );
+
+
+MODULE C(active_interaction)
+
+	VAR
+		NuPcons		:		boolean;
+		NuPwork		:		boolean;
+		NuVy		:		signed word[13];
+		Nuplace		:		{NuSCONSUME, NuSWORK};
+
+
+	INIT
+		( (NuVy) = (0sd13_00) ) &
+		( (Nuplace) = (NuSCONSUME) );
+
+	INVAR
+		( (NuPcons) <-> (( (Nuplace) = (NuSCONSUME) )) ) &
+		( (NuPwork) <-> (( (Nuplace) = (NuSWORK) )) );
+
+	TRANS
+		( (( (( (Nuplace) = (NuSCONSUME) )) & (( (next(Nuplace)) = (NuSWORK) )) )) & (( (active_interaction) = (NuI1) )) ) |
+		( (( (( (( (Nuplace) = (NuSWORK) )) & (( (next(Nuplace)) = (NuSCONSUME) )) )) & (( (active_interaction) = (NuI3) )) )) & (( (next(NuVy)) = (NuVy) )) ) |
+		( (( (active_interaction) != (NuI3) )) & (( (( (active_interaction) != (NuI1) )) & (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVy)) = (NuVy) )) )) )) );
+
+
+MODULE main
+
+	VAR
+		NuInteraction		:		{NuI1, NuI2, NuI3};
+		p	:	P(NuInteraction);
+		c	:	C(NuInteraction);
+
+	DEFINE
+		Communicate		:=		( (p.NuPprod) & (c.NuPcons) );
+		P_work		:=		p.NuPwork;
+		C_work		:=		c.NuPwork;
+
+
+	INVAR
+		( (( (NuInteraction) = (NuI1) )) -> (Communicate) ) &
+		( (( (NuInteraction) = (NuI2) )) -> (P_work) ) &
+		( (( (NuInteraction) = (NuI3) )) -> (C_work) );
+
+	TRANS
+		( (( (NuInteraction) = (NuI1) )) -> (( (next(c.NuVy)) = (p.NuVx) )) );
+
+

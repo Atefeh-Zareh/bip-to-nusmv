@@ -1,0 +1,21 @@
+<number of components>
+
+<name of first component>
+<number of variables in component>
+<first variable>	<size in bits>
+<second variable>	<size in bits>
+<third variable>	<size in bits>
+..
+..
+
+<name of second component>
+<number of variables in component>
+<first variable>	<size in bits>
+<second variable>	<size in bits>
+<third variable>	<size in bits>
+..
+..
+
+...
+
+default			<default size>

@@ -1,0 +1,82 @@
+MODULE F1(active_interaction)
+
+	VAR
+		NuPwork1		:		boolean;
+		NuPwork2		:		boolean;
+		NuPtrans		:		boolean;
+		NuVx		:		unsigned word[4];
+		NuVy		:		unsigned word[3];
+		Nuplace		:		{NuSWORK1, NuSWORK2, NuSTRANSFER};
+
+
+	INIT
+		( (NuVx) = (0ud4_10) ) &
+		( (NuVy) = (0ud3_5) ) &
+		( (Nuplace) = (NuSTRANSFER) );
+
+	INVAR
+		( (NuPtrans) <-> (( (Nuplace) = (NuSTRANSFER) )) ) &
+		( (NuPwork1) <-> (( (( (Nuplace) = (NuSWORK1) )) & (( (NuVy) < (0ud3_5) )) )) ) &
+		( (NuPwork2) <-> (( (( (Nuplace) = (NuSWORK2) )) & (( (NuVx) != (0ud4_10) )) )) );
+
+	TRANS
+		( (( (( (( (( (Nuplace) = (NuSWORK1) )) & (( (next(Nuplace)) = (NuSWORK2) )) )) & (( (active_interaction) = (NuI1) )) )) & (( (next(NuVy)) = (0ud3_5) )) )) & (( (next(NuVx)) = (NuVx) )) ) |
+		( (( (( (( (( (Nuplace) = (NuSWORK2) )) & (( (next(Nuplace)) = (NuSTRANSFER) )) )) & (( (active_interaction) = (NuI2) )) )) & (( (next(NuVx)) = (0ud4_10) )) )) & (( (next(NuVy)) = (NuVy) )) ) |
+		( (( (( (( (Nuplace) = (NuSTRANSFER) )) & (( (next(Nuplace)) = (NuSWORK1) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVx)) = (NuVx) )) ) |
+		( (( (active_interaction) != (NuI5) )) & (( (( (active_interaction) != (NuI2) )) & (( (( (active_interaction) != (NuI1) )) & (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVx)) = (NuVx) )) )) & (( (next(NuVy)) = (NuVy) )) )) )) )) );
+
+
+MODULE F2(active_interaction)
+
+	VAR
+		NuPwork1		:		boolean;
+		NuPwork2		:		boolean;
+		NuPtrans		:		boolean;
+		NuVx		:		unsigned word[4];
+		NuVy		:		unsigned word[3];
+		Nuplace		:		{NuSWORK1, NuSWORK2, NuSTRANSFER};
+
+
+	INIT
+		( (NuVx) = (0ud4_10) ) &
+		( (NuVy) = (0ud3_5) ) &
+		( (Nuplace) = (NuSTRANSFER) );
+
+	INVAR
+		( (NuPtrans) <-> (( (Nuplace) = (NuSTRANSFER) )) ) &
+		( (NuPwork2) <-> (( (( (Nuplace) = (NuSWORK2) )) & (( (NuVx) != (0ud4_10) )) )) ) &
+		( (NuPwork1) <-> (( (( (Nuplace) = (NuSWORK1) )) & (( (NuVy) < (0ud3_5) )) )) );
+
+	TRANS
+		( (( (( (( (( (Nuplace) = (NuSWORK1) )) & (( (next(Nuplace)) = (NuSWORK2) )) )) & (( (active_interaction) = (NuI3) )) )) & (( (next(NuVy)) = (0ud3_5) )) )) & (( (next(NuVx)) = (NuVx) )) ) |
+		( (( (( (( (( (Nuplace) = (NuSWORK2) )) & (( (next(Nuplace)) = (NuSTRANSFER) )) )) & (( (active_interaction) = (NuI4) )) )) & (( (next(NuVx)) = (0ud4_10) )) )) & (( (next(NuVy)) = (NuVy) )) ) |
+		( (( (( (( (Nuplace) = (NuSTRANSFER) )) & (( (next(Nuplace)) = (NuSWORK1) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVx)) = (NuVx) )) ) |
+		( (( (active_interaction) != (NuI5) )) & (( (( (active_interaction) != (NuI4) )) & (( (( (active_interaction) != (NuI3) )) & (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVx)) = (NuVx) )) )) & (( (next(NuVy)) = (NuVy) )) )) )) )) );
+
+
+MODULE main
+
+	VAR
+		NuInteraction		:		{NuI1, NuI2, NuI3, NuI4, NuI5};
+		f1	:	F1(NuInteraction);
+		f2	:	F2(NuInteraction);
+
+	DEFINE
+		Communicate		:=		( (( (f1.NuPtrans) & (f2.NuPtrans) )) & (( (f1.NuVx) > (0ud4_0) )) );
+		F2_work2		:=		f2.NuPwork2;
+		F1_work2		:=		f1.NuPwork2;
+		F1_work1		:=		f1.NuPwork1;
+		F2_work1		:=		f2.NuPwork1;
+
+
+	INVAR
+		( (( (NuInteraction) = (NuI5) )) -> (Communicate) ) &
+		( (( (NuInteraction) = (NuI4) )) -> (F2_work2) ) &
+		( (( (NuInteraction) = (NuI2) )) -> (F1_work2) ) &
+		( (( (NuInteraction) = (NuI1) )) -> (F1_work1) ) &
+		( (( (NuInteraction) = (NuI3) )) -> (F2_work1) );
+
+	TRANS
+		( (( (NuInteraction) = (NuI5) )) -> (( (( (next(f2.NuVy)) = (0ud3_3) )) & (( (next(f1.NuVy)) = (( (next(f2.NuVy)) + (0ud3_3) )) )) )) );
+
+

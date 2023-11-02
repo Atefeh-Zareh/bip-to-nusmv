@@ -1,0 +1,36 @@
+4
+
+CustomerPlugQuorum
+5
+id		3
+proposedValue	3
+decidedValueS	3
+decidedValue	3
+serverId	2
+
+Server
+5
+id		2
+decidedValue	3
+proposedValue	3
+serverId	2
+ClientId	3
+
+plugConnector
+5
+id		3
+clientId	3
+serverId	2
+proposedValue	3
+decidedValue	3
+
+ServerConnector
+6
+id		2
+serverId	2
+proposed	3
+decided		3
+clientIdSend	3
+clientIdRcv	3
+
+default		3

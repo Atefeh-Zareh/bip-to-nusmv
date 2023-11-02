@@ -1,0 +1,6 @@
+testing
+build/build.xml
+bin/
+*.model
+*.timod
+*~

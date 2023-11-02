@@ -1,0 +1,975 @@
+MODULE Plug1(ia)
+VAR
+	place:             {sendchannel, rs1,rs2,rs3,rs4,rs5, backup, reset};
+
+	sendtoclient:       boolean;
+	sendtochannel:      boolean;
+	receivefromserver:   boolean;
+	switch:            boolean;
+	ticker: boolean;
+
+	decision:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalues:{non,c1,c2,c3,c4};--
+
+	serverid:{non,s1,s2};--
+	trigger:boolean;
+
+
+INVAR
+((place=sendchannel) = sendtochannel) & 
+(((place=rs1) | (place=rs2) | (place=rs3)) = receivefromserver) & 
+(((place=rs4) & trigger ) = sendtoclient) &
+(((place=rs4 & !trigger) | (place=rs5)) = switch) &
+(((place=rs1) | (place=rs2) | place=rs3 | (place=reset) | (place=backup)) = ticker);
+
+INVAR
+proposedvalue=c1;
+
+ASSIGN
+init(place):=sendchannel;
+init(serverid):=non;
+init(decidedvalues):=non;
+init(decision):=non;
+init(trigger):=FALSE;
+
+
+next(place):=
+case
+ ia=f7 : rs1;
+(place=rs1 & ia=f25): rs2;
+(place=rs1 & ia=f27): rs3;
+(place=rs2 & ia=f25): rs4;
+(place=rs2 & ia=f27): rs5;
+(place=rs3 & ia=f25): rs5;
+(ia=f3 ): reset;
+ ia=f5 : backup;
+(place=backup) & ia=f27: backup;
+(place=reset) & ia=f27: reset;
+place=rs3 & ia=f27:rs3;
+TRUE:place;
+esac;
+
+next(decision):=
+case
+ ia=f25 & (place=rs1 | place=rs3): next(decidedvalues);
+ ia=f25 & place=rs2 & (decision != next(decidedvalues)) : proposedvalue;
+TRUE:decision;
+esac;
+
+next(trigger):=
+case
+place=rs2 & ia=f25 & decision = next(decidedvalues): TRUE;
+TRUE:trigger;
+esac;
+
+
+MODULE Plug2(ia)
+VAR
+	place:             {sendchannel, rs1,rs2,rs3,rs4,rs5, backup, reset};
+
+	sendtoclient:       boolean;
+	sendtochannel:      boolean;
+	receivefromserver:   boolean;
+	switch:            boolean;
+	ticker: boolean;
+
+	decision:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};--
+	decidedvalues:{non,c1,c2,c3,c4};--
+
+	serverid:{non,s1,s2};--
+	trigger:boolean;
+
+
+INVAR
+((place=sendchannel) = sendtochannel) & 
+(((place=rs1) | (place=rs2) | (place=rs3)) = receivefromserver) & 
+(((place=rs4) & trigger ) = sendtoclient) &
+(((place=rs4 & !trigger) | (place=rs5)) = switch) &
+(((place=rs1) | (place=rs2) | place=rs3| (place=reset) | (place=backup)) = ticker);
+
+INVAR
+proposedvalue=c2;
+
+ASSIGN
+init(place):=sendchannel;
+init(serverid):=non;
+init(decidedvalues):=non;
+init(decision):=non;
+init(trigger):=FALSE;
+
+next(place):=
+case
+ ia=f8 : rs1;
+(place=rs1 & ia=f26): rs2;
+(place=rs1 & ia=f28): rs3;
+(place=rs2 & ia=f26): rs4;
+(place=rs2 & ia=f28): rs5;
+(place=rs3 & ia=f26): rs5;
+(ia=f4 ): reset;
+ ia=f6 : backup;
+(place=backup) & ia=f28: backup;
+(place=reset) & ia=f28: reset;
+place=rs3 & ia=f28:rs3;
+TRUE:place;
+esac;
+
+next(decision):=
+case
+ ia=f26 & (place=rs1 | place=rs3): next(decidedvalues);
+ ia=f26 & place=rs2 & (decision != next(decidedvalues)) : proposedvalue;
+TRUE:decision;
+esac;
+
+next(trigger):=
+case
+place=rs2 & ia=f26 & decision = next(decidedvalues): TRUE;
+TRUE:trigger;
+esac;
+
+
+MODULE Plug3(ia)
+VAR
+	place:             { sendchannel, rs1,rs2,rs3,rs4,rs5, backup, reset};
+
+	sendtoclient:       boolean;
+	sendtochannel:      boolean;
+	receivefromserver:   boolean;
+	switch:            boolean;
+	ticker: boolean;
+
+	decision:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};--
+	decidedvalues:{non,c1,c2,c3,c4};--
+
+	serverid:{non,s1,s2};--
+	trigger:boolean;
+
+
+INVAR
+((place=sendchannel) = sendtochannel) & 
+(((place=rs1) | (place=rs2) | (place=rs3)) = receivefromserver) & 
+(((place=rs4) & trigger ) = sendtoclient) &
+(((place=rs4 & !trigger) | (place=rs5)) = switch) &
+(((place=rs1) | (place=rs2) | place=rs3| (place=reset) | (place=backup)) = ticker);
+
+INVAR
+proposedvalue=c3;
+
+ASSIGN
+init(place):=sendchannel;
+init(serverid):=non;
+init(decidedvalues):=non;
+init(decision):=non;
+init(trigger):=FALSE;
+
+next(place):=
+case
+ ia=f35 : rs1;
+(place=rs1 & ia=f40): rs2;
+(place=rs1 & ia=f41): rs3;
+(place=rs2 & ia=f40): rs4;
+(place=rs2 & ia=f41): rs5;
+(place=rs3 & ia=f40): rs5;
+(ia=f33 ): reset;
+ ia=f34 : backup;
+(place=backup) & ia=f41: backup;
+(place=reset) & ia=f41: reset;
+place=rs3 & ia=f41:rs3;
+TRUE:place;
+esac;
+
+next(decision):=
+case
+ ia=f40 & (place=rs1 | place=rs3): next(decidedvalues);
+ ia=f40 & place=rs2 & (decision != next(decidedvalues)) : proposedvalue;
+TRUE:decision;
+esac;
+
+next(trigger):=
+case
+place=rs2 & ia=f40 & decision = next(decidedvalues): TRUE;
+TRUE:trigger;
+esac;
+
+MODULE Plug4(ia)
+VAR
+	place:             {sendchannel, rs1,rs2,rs3,rs4,rs5, backup, reset};
+
+	sendtoclient:       boolean;
+	sendtochannel:      boolean;
+	receivefromserver:   boolean;
+	switch:            boolean;
+	ticker: boolean;
+
+	decision:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalues:{non,c1,c2,c3,c4};--
+
+	serverid:{non,s1,s2};--
+	trigger:boolean;
+
+
+INVAR
+((place=sendchannel) = sendtochannel) & 
+(((place=rs1) | (place=rs2) | (place=rs3)) = receivefromserver) & 
+(((place=rs4) & trigger ) = sendtoclient) &
+(((place=rs4 & !trigger) | (place=rs5)) = switch) &
+(((place=rs1) | (place=rs2) | place=rs3| (place=reset) | (place=backup)) = ticker);
+
+INVAR
+proposedvalue=c4;
+
+ASSIGN
+init(place):=sendchannel;
+init(serverid):=non;
+init(decidedvalues):=non;
+init(decision):=non;
+init(trigger):=FALSE;
+
+next(place):=
+case
+ ia=f44 : rs1;
+(place=rs1 & ia=f45): rs2;
+(place=rs1 & ia=f47): rs3;
+(place=rs2 & ia=f45): rs4;
+(place=rs2 & ia=f47): rs5;
+(place=rs3 & ia=f45): rs5;
+(ia=f43 ): reset;
+ ia=f46 : backup;
+(place=backup) & ia=f47: backup;
+(place=reset) & ia=f47: reset;
+place=rs3 & ia=f47:rs3;
+TRUE:place;
+esac;
+
+next(decision):=
+case
+ ia=f45 & (place=rs1 | place=rs3): next(decidedvalues);
+ ia=f45 & place=rs2 & (decision != next(decidedvalues)) : proposedvalue;
+TRUE:decision;
+esac;
+
+next(trigger):=
+case
+place=rs2 & ia=f45 & decision = next(decidedvalues): TRUE;
+TRUE:trigger;
+esac;
+
+
+MODULE Server1(ia)
+VAR
+	place:{received, send};
+	rcvfromchannel:boolean;
+	sendtoserverc:boolean;
+
+	decidedvalue:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};--
+	clientid:{non,c1,c2,c3,c4};--
+
+INVAR
+((place=received) = rcvfromchannel) & ((place=send) = sendtoserverc);
+
+ASSIGN
+init(place):=received;
+init(decidedvalue):=non;
+init(proposedvalue):=non;
+init(clientid):=non;
+
+next(place):=
+case
+ ia=f17 : send;
+ ia=f19: received;
+TRUE:place;
+esac;
+
+next(decidedvalue):=
+case
+ ia=f17 & decidedvalue=non : next(proposedvalue);
+TRUE:decidedvalue;
+esac;
+
+
+MODULE Server2(ia)
+VAR
+	place:{received, send};
+	rcvfromchannel:boolean;
+	sendtoserverc:boolean;
+
+	decidedvalue:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};--
+	clientid:{non,c1,c2,c3,c4};--
+
+INVAR
+((place=received) = rcvfromchannel) & ((place=send) = sendtoserverc);
+
+ASSIGN
+init(place):=received;
+init(decidedvalue):=non;
+init(proposedvalue):=non;
+init(clientid):=non;
+
+next(place):=
+case
+ ia=f18 : send;
+ ia=f20: received;
+TRUE:place;
+esac;
+
+next(decidedvalue):=
+case
+ ia=f18 & decidedvalue=non : next(proposedvalue);
+TRUE:decidedvalue;
+esac;
+
+MODULE PlugInterface1(ia)
+VAR
+	place1:{start,sendserver};
+	place2:{rcvserver,sendclient};
+
+	SendS1:boolean;
+	SendS2:boolean;
+	rcvServer:boolean;
+	rcvPlug:boolean;
+	sendClient:boolean;
+--	internal : boolean;
+	
+	serverid:{non,s1,s2};--
+	server1:boolean;
+	server2:boolean;
+
+	clientid:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalue:{non,c1,c2,c3,c4};
+
+INVAR
+clientid=c1;
+
+INVAR
+((place1=sendserver &  !server1) = SendS1) &
+((place1=sendserver &  !server2) = SendS2) &
+((place2=rcvserver) = rcvServer) &
+((place1=start) = rcvPlug)&
+((place2=sendclient) = sendClient);
+
+--((place1=sendserver & server1 & server2) = internal)& 
+
+ASSIGN
+init(place1):=start;
+init(place2):=rcvserver;
+init(server1):=FALSE;
+init(server2):=FALSE;
+init(proposedvalue):=non;
+init(serverid):=non;
+init(decidedvalue):=non;
+
+next(place1):=
+case
+(( ia=f7) | ( ia=f9) | ( ia=f10)): sendserver;
+-- ia=f29: start;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ (ia=f13 | ia=f14) : sendclient;
+ ia=f25 : rcvserver;
+TRUE: place2;
+esac;
+
+next(server1):=
+case
+ ia=f9 & !server1 : TRUE;
+-- ia=f29 & server1 & server2 : FALSE;
+TRUE:server1;
+esac;
+
+next(server2):=
+case
+ ia=f10 & !server2 : TRUE;
+-- ia=f29 & server1 & server2 : FALSE;
+TRUE:server2;
+esac;
+
+MODULE PlugInterface2(ia)
+VAR
+	place1:{start,sendserver};
+	place2:{rcvserver,sendclient};
+
+	SendS1:boolean;
+	SendS2:boolean;
+	rcvServer:boolean;
+	rcvPlug:boolean;
+	sendClient:boolean;
+--	internal : boolean;
+	
+	serverid:{non,s1,s2};--
+	server1:boolean;
+	server2:boolean;
+
+	clientid:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalue:{non,c1,c2,c3,c4};
+
+INVAR
+clientid=c2;
+
+INVAR
+((place1=sendserver & !server1) = SendS1) &
+((place1=sendserver & !server2) = SendS2) &
+((place2=rcvserver) = rcvServer) &
+((place1=start) = rcvPlug)&
+((place2=sendclient) = sendClient);
+
+--((place1=sendserver & server1 & server2) = internal)& 
+
+ASSIGN
+init(place1):=start;
+init(place2):=rcvserver;
+init(server1):=FALSE;
+init(server2):=FALSE;
+init(proposedvalue):=non;
+init(serverid):=non;
+init(decidedvalue):=non;
+
+next(place1):=
+case
+(( ia=f8) | ( ia=f11) | ( ia=f12)): sendserver;
+-- ia=f30: start;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ (ia=f15 | ia=f16) : sendclient;
+ ia=f26 : rcvserver;
+TRUE: place2;
+esac;
+
+next(server1):=
+case
+ ia=f11 & !server1 : TRUE;
+-- ia=f30 & server1 & server2 : FALSE;
+TRUE:server1;
+esac;
+
+next(server2):=
+case
+ ia=f12 & !server2 : TRUE;
+-- ia=f30 & server1 & server2 : FALSE;
+TRUE:server2;
+esac;
+
+MODULE PlugInterface3(ia)
+VAR
+	place1:{start,sendserver};
+	place2:{rcvserver,sendclient};
+
+	SendS1:boolean;
+	SendS2:boolean;
+	rcvServer:boolean;
+	rcvPlug:boolean;
+	sendClient:boolean;
+--	internal : boolean;
+	
+	serverid:{non,s1,s2};--
+	server1:boolean;
+	server2:boolean;
+
+	clientid:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalue:{non,c1,c2,c3,c4};
+
+INVAR
+clientid=c3;
+
+INVAR
+((place1=sendserver  & !server1) = SendS1) &
+((place1=sendserver  & !server2) = SendS2) &
+((place2=rcvserver) = rcvServer) &
+((place1=start) = rcvPlug)&
+((place2=sendclient) = sendClient);
+
+--((place1=sendserver & server1 & server2) = internal)& 
+
+ASSIGN
+init(place1):=start;
+init(place2):=rcvserver;
+init(server1):=FALSE;
+init(server2):=FALSE;
+init(proposedvalue):=non;
+init(serverid):=non;
+init(decidedvalue):=non;
+
+next(place1):=
+case
+(( ia=f35) | ( ia=f36) | ( ia=f37)): sendserver;
+-- ia=f32: start;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ (ia=f38 | ia=f39) : sendclient;
+ ia=f40 : rcvserver;
+TRUE: place2;
+esac;
+
+next(server1):=
+case
+ ia=f36 & !server1 : TRUE;
+-- ia=f32 & server1 & server2 : FALSE;
+TRUE:server1;
+esac;
+
+next(server2):=
+case
+ ia=f37 & !server2 : TRUE;
+-- ia=f32 & server1 & server2 : FALSE;
+TRUE:server2;
+esac;
+
+MODULE PlugInterface4(ia)
+VAR
+	place1:{start,sendserver};
+	place2:{rcvserver,sendclient};
+
+	SendS1:boolean;
+	SendS2:boolean;
+	rcvServer:boolean;
+	rcvPlug:boolean;
+	sendClient:boolean;
+--	internal : boolean;
+	
+	serverid:{non,s1,s2};--
+	server1:boolean;
+	server2:boolean;
+
+	clientid:{non,c1,c2,c3,c4};
+	proposedvalue:{non,c1,c2,c3,c4};
+	decidedvalue:{non,c1,c2,c3,c4};
+
+INVAR
+clientid=c4;
+
+INVAR
+((place1=sendserver  & !server1) = SendS1) &
+((place1=sendserver  & !server2) = SendS2) &
+((place2=rcvserver) = rcvServer) &
+((place1=start) = rcvPlug)&
+((place2=sendclient) = sendClient);
+
+--((place1=sendserver & server1 & server2) = internal)& 
+
+ASSIGN
+init(place1):=start;
+init(place2):=rcvserver;
+init(server1):=FALSE;
+init(server2):=FALSE;
+init(proposedvalue):=non;
+init(serverid):=non;
+init(decidedvalue):=non;
+
+next(place1):=
+case
+((ia=f44) | ( ia=f48) | (ia=f49)): sendserver;
+-- ia=f52: start;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ (ia=f50 | ia=f51) : sendclient;
+ ia=f45 : rcvserver;
+TRUE: place2;
+esac;
+
+next(server1):=
+case
+ ia=f48 & !server1 : TRUE;
+-- ia=f52 & server1 & server2 : FALSE;
+TRUE:server1;
+esac;
+
+next(server2):=
+case
+ ia=f49 & !server2 : TRUE;
+-- ia=f52 & server1 & server2 : FALSE;
+TRUE:server2;
+esac;
+
+MODULE ServerInterface1(ia)
+VAR
+	place1:{rcvplug,sendserver,crash};
+	place2:{rcvserver,sendplugc};
+
+	rcvPlugC:boolean;
+	sendServer:boolean;
+	rcvServer:boolean;
+	sendPlug:boolean;
+	loose:boolean;
+	msglost:boolean;
+	
+	serverId:{non,s1,s2};
+	proposed:{non,c1,c2,c3,c4};--
+	decided:{non,c1,c2,c3,c4};--
+	clientIdSend:{non,c1,c2,c3,c4};--
+	clientIdRcv:{non,c1,c2,c3,c4};--
+
+
+INVAR
+serverId=s1;
+
+
+INVAR
+(((place1=rcvplug)|(place1=crash)) = rcvPlugC) &
+((place1=sendserver) = sendServer) &
+((place2=rcvserver) = rcvServer) &
+((place2=sendplugc) = sendPlug) &
+((place1=sendserver) = msglost) &
+((place1=sendserver) = loose);
+
+ASSIGN
+init(place1):=rcvplug;
+init(place2):=rcvserver;
+init(proposed):=non;
+init(decided):=non;
+init(clientIdSend):=non;
+init(clientIdRcv):=non;
+
+next(place1):=
+case
+(place1=rcvplug) &  (ia=f9 | ia=f11) : sendserver;
+(place1=crash) &  (ia=f9 | ia=f11): crash;
+(( ia=f17) | ( ia=f21)): rcvplug;
+ ia=f23 : crash;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ ia=f19 : sendplugc;
+ (ia=f13 | ia=f15): rcvserver;
+TRUE:place2;
+esac;
+
+MODULE ServerInterface2(ia)
+VAR
+	place1:{rcvplug,sendserver,crash};
+	place2:{rcvserver,sendplugc};
+
+	rcvPlugC:boolean;
+	sendServer:boolean;
+	rcvServer:boolean;
+	sendPlug:boolean;
+	loose:boolean;
+	msglost:boolean;
+	
+	serverId:{non,s1,s2};
+	proposed:{non,c1,c2,c3,c4};--
+	decided:{non,c1,c2,c3,c4};--
+	clientIdSend:{non,c1,c2,c3,c4};--
+	clientIdRcv:{non,c1,c2,c3,c4};--
+
+INVAR
+serverId=s2;
+
+INVAR
+(((place1=rcvplug)|(place1=crash)) = rcvPlugC) &
+((place1=sendserver) = sendServer) &
+((place2=rcvserver) = rcvServer) &
+((place2=sendplugc) = sendPlug) &
+((place1=sendserver) = msglost) &
+((place1=sendserver) = loose);
+
+ASSIGN
+init(place1):=rcvplug;
+init(place2):=rcvserver;
+init(proposed):=non;
+init(decided):=non;
+init(clientIdSend):=non;
+init(clientIdRcv):=non;
+
+next(place1):=
+case
+(place1=rcvplug) & (ia=f10 | ia=f12): sendserver;
+(( ia=f18) | ( ia=f22)): rcvplug;
+ ia=f24 : crash;
+(place1=crash) & (ia=f10 | ia=f12): crash;
+TRUE:place1;
+esac;
+
+next(place2):=
+case
+ia=f20 : sendplugc;
+(ia=f14 | ia=f16): rcvserver;
+TRUE:place2;
+esac;
+
+
+MODULE main
+VAR
+interaction:{f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,f27,f28,f33,f34,f35,f36,f37,f38,f39,f40,f41,f43,f44,f45,f46,f47,f48,f49,f50,f51};
+
+	P1:	Plug1(interaction);
+	P2:	Plug2(interaction);
+	P3:	Plug3(interaction);
+	P4:	Plug4(interaction);
+	PI1:	PlugInterface1(interaction);
+	PI2:	PlugInterface2(interaction);
+	PI3:	PlugInterface3(interaction);
+	PI4:	PlugInterface4(interaction);
+
+	S1:	Server1(interaction);
+	S2:	Server2(interaction);
+	SI1:	ServerInterface1(interaction);
+	SI2:	ServerInterface2(interaction);
+
+INIT
+interaction=f7;
+
+DEFINE
+connector3:= P1.sendtoclient;
+
+DEFINE
+connector4:= P2.sendtoclient;
+
+DEFINE
+connector5:= P1.switch;
+
+DEFINE
+connector6:= P2.switch;
+
+DEFINE
+connector7:= P1.sendtochannel & PI1.rcvPlug;
+
+DEFINE
+connector8:= P2.sendtochannel & PI2.rcvPlug;
+
+DEFINE
+connector9:= PI1.SendS1 & SI1.rcvPlugC;
+
+DEFINE
+connector10:= PI1.SendS2 & SI2.rcvPlugC;
+
+DEFINE
+connector11:= PI2.SendS1 & SI1.rcvPlugC;
+
+DEFINE
+connector12:= PI2.SendS2 & SI2.rcvPlugC;
+
+DEFINE
+connector13:= PI1.rcvServer & SI1.sendPlug & (SI1.clientIdSend=c1);
+
+DEFINE
+connector14:= PI1.rcvServer & SI2.sendPlug & (SI2.clientIdSend=c1);
+
+DEFINE
+connector15:= PI2.rcvServer & SI1.sendPlug & (SI1.clientIdSend=c2);
+
+DEFINE
+connector16:= PI2.rcvServer & SI2.sendPlug & (SI2.clientIdSend=c2);
+
+DEFINE
+connector17:= SI1.sendServer & S1.rcvfromchannel;
+
+DEFINE
+connector18:= SI2.sendServer & S2.rcvfromchannel;
+
+DEFINE
+connector19:= SI1.rcvServer & S1.sendtoserverc;
+
+DEFINE
+connector20:= SI2.rcvServer & S2.sendtoserverc;
+
+DEFINE
+connector21:=  SI1.msglost;
+
+DEFINE
+connector22:=  SI2.msglost;
+
+DEFINE
+connector23:= SI1.loose ;
+
+DEFINE
+connector24:= SI2.loose ;
+
+DEFINE
+connector25:= P1.receivefromserver & PI1.sendClient ;
+
+DEFINE
+connector26:= P2.receivefromserver & PI2.sendClient ;
+
+DEFINE
+connector27:= P1.ticker ;
+
+DEFINE
+connector28:= P2.ticker ;
+
+--DEFINE
+--connector29:=PI1.internal ;
+
+--DEFINE
+--connector30:=PI2.internal ;
+
+--DEFINE
+--connector32:= PI3.internal ;
+
+DEFINE
+connector33:=  P3.sendtoclient ;
+
+DEFINE
+connector34:= P3.switch ;
+
+DEFINE
+connector35:= P3.sendtochannel & PI3.rcvPlug ;
+
+DEFINE
+connector36:= PI3.SendS1 & SI1.rcvPlugC ;
+
+DEFINE
+connector37:= PI3.SendS2 & SI2.rcvPlugC ;
+
+DEFINE
+connector38:= PI3.rcvServer & SI1.sendPlug & (SI1.clientIdSend=c3) ;
+
+DEFINE
+connector39:= PI3.rcvServer & SI2.sendPlug & (SI2.clientIdSend=c3) ;
+
+DEFINE
+connector40:= P3.receivefromserver & PI3.sendClient ;
+
+DEFINE
+connector41:= P3.ticker;
+
+--DEFINE
+--connector52:= PI4.internal ;
+
+DEFINE
+connector43:= P4.sendtoclient ;
+
+DEFINE
+connector46:= P4.switch ;
+
+DEFINE
+connector44:= P4.sendtochannel & PI4.rcvPlug ;
+
+DEFINE
+connector48:= PI4.SendS1 & SI1.rcvPlugC ;
+
+DEFINE
+connector49:= PI4.SendS2 & SI2.rcvPlugC ;
+
+DEFINE
+connector50:= PI4.rcvServer & SI1.sendPlug & (SI1.clientIdSend=c4) ;
+
+DEFINE
+connector51:= PI4.rcvServer & SI2.sendPlug & (SI2.clientIdSend=c4) ;
+
+DEFINE
+connector45:= P4.receivefromserver & PI4.sendClient ;
+
+DEFINE
+connector47:= P4.ticker;
+
+INVAR
+(((interaction)=f3) -> (connector3)) &
+(((interaction)=f4) -> (connector4)) &
+(((interaction)=f5) -> (connector5)) &
+(((interaction)=f6) -> (connector6)) &
+(((interaction)=f7) -> (connector7)) &
+(((interaction)=f8) -> (connector8)) &
+(((interaction)=f9) -> (connector9)) &
+(((interaction)=f10) -> (connector10)) &
+(((interaction)=f11) -> (connector11)) &
+(((interaction)=f12) -> (connector12)) &
+(((interaction)=f13) -> (connector13)) &
+(((interaction)=f14) -> (connector14)) &
+(((interaction)=f15) -> (connector15)) &
+(((interaction)=f16) -> (connector16)) &
+(((interaction)=f17) -> (connector17)) &
+(((interaction)=f18) -> (connector18)) &
+(((interaction)=f19) -> (connector19)) &
+(((interaction)=f20) -> (connector20)) &
+(((interaction)=f21) -> (connector21)) &
+(((interaction)=f22) -> (connector22)) &
+(((interaction)=f23) -> (connector23)) &
+(((interaction)=f24) -> (connector24)) &
+(((interaction)=f25) -> (connector25)) &
+(((interaction)=f26) -> (connector26)) &
+(((interaction)=f27) -> (connector27)) &
+(((interaction)=f28) -> (connector28)) &
+--(((interaction)=f29) -> (connector29)) &
+--(((interaction)=f30) -> (connector30)) &
+--(((interaction)=f32) -> (connector32)) &
+(((interaction)=f33) -> (connector33)) &
+(((interaction)=f34) -> (connector34)) &
+(((interaction)=f35) -> (connector35)) &
+(((interaction)=f36) -> (connector36)) &
+(((interaction)=f37) -> (connector37)) &
+(((interaction)=f38) -> (connector38)) &
+(((interaction)=f39) -> (connector39)) &
+(((interaction)=f40) -> (connector40)) &
+(((interaction)=f41) -> (connector41)) &
+(((interaction)=f43) -> (connector43)) &
+(((interaction)=f44) -> (connector44)) &
+(((interaction)=f45) -> (connector45)) &
+(((interaction)=f46) -> (connector46)) &
+(((interaction)=f47) -> (connector47)) &
+(((interaction)=f48) -> (connector48)) &
+(((interaction)=f49) -> (connector49)) &
+(((interaction)=f50) -> (connector50)) &
+(((interaction)=f51) -> (connector51));
+--(((interaction)=f52) -> (connector52)) &
+
+TRANS
+(interaction=f7 -> next(PI1.proposedvalue)=P1.proposedvalue) &
+(interaction!=f7 -> next(PI1.proposedvalue)=PI1.proposedvalue) &
+(interaction=f8 -> next(PI2.proposedvalue)=P2.proposedvalue) &
+(interaction!=f8 -> next(PI2.proposedvalue)=PI2.proposedvalue) &
+(interaction=f35 -> next(PI3.proposedvalue)=P3.proposedvalue) &
+(interaction!=f35 -> next(PI3.proposedvalue)=PI3.proposedvalue) &
+(interaction=f44 -> next(PI4.proposedvalue)=P4.proposedvalue) &
+(interaction!=f44 -> next(PI4.proposedvalue)=PI4.proposedvalue) &
+(interaction=f9 -> (next(SI1.clientIdRcv)=PI1.clientid & next(SI1.proposed)=PI1.proposedvalue))&
+(interaction=f11 -> (next(SI1.clientIdRcv)=PI2.clientid & next(SI1.proposed)=PI2.proposedvalue)) &
+(interaction=f36 -> (next(SI1.clientIdRcv)=PI3.clientid & next(SI1.proposed)=PI3.proposedvalue)) &
+(interaction=f48 -> (next(SI1.clientIdRcv)=PI4.clientid & next(SI1.proposed)=PI4.proposedvalue)) &
+(((interaction!=f9) & (interaction!=f11) & (interaction!=f36) & (interaction!=f48)) -> (next(SI1.clientIdRcv)=SI1.clientIdRcv & next(SI1.proposed)=SI1.proposed)) &
+(interaction=f10 -> (next(SI2.clientIdRcv)=PI1.clientid & next(SI2.proposed)=PI1.proposedvalue))&
+(interaction=f12 -> (next(SI2.clientIdRcv)=PI2.clientid & next(SI2.proposed)=PI2.proposedvalue)) &
+(interaction=f37 -> (next(SI2.clientIdRcv)=PI3.clientid & next(SI2.proposed)=PI3.proposedvalue)) &
+(interaction=f49 -> (next(SI2.clientIdRcv)=PI4.clientid & next(SI2.proposed)=PI4.proposedvalue)) &
+(((interaction!=f10) & (interaction!=f12) & (interaction!=f37) & (interaction!=f49)) -> (next(SI2.clientIdRcv)=SI2.clientIdRcv & next(SI2.proposed)=SI2.proposed)) &
+(interaction=f17 -> (next(S1.clientid)=SI1.clientIdRcv & next(S1.proposedvalue)=SI1.proposed)) &
+(interaction!=f17 ->(next(S1.clientid)=S1.clientid & next(S1.proposedvalue)=S1.proposedvalue)) &
+(interaction=f18 -> (next(S2.clientid)=SI2.clientIdRcv & next(S2.proposedvalue)=SI2.proposed)) &
+(interaction!=f18 ->(next(S2.clientid)=S2.clientid & next(S2.proposedvalue)=S2.proposedvalue)) &
+(interaction=f19 -> (next(SI1.clientIdSend)=S1.clientid & next(SI1.decided)=S1.decidedvalue)) &
+(interaction!=f19 ->(next(SI1.clientIdSend)=SI1.clientIdSend & next(SI1.decided)=SI1.decided)) &
+(interaction=f20 -> (next(SI2.clientIdSend)=S2.clientid & next(SI2.decided)=S2.decidedvalue)) &
+(interaction!=f20 ->(next(SI2.clientIdSend)=SI2.clientIdSend & next(SI2.decided)=SI2.decided)) &
+(interaction=f13 -> (next(PI1.serverid)=SI1.serverId & next(PI1.decidedvalue)=SI1.decided)) &
+(interaction=f14 -> (next(PI1.serverid)=SI2.serverId & next(PI1.decidedvalue)=SI2.decided)) &
+((interaction!=f13 & interaction!=f14) -> (next(PI1.serverid)=PI1.serverid & next(PI1.decidedvalue)=PI1.decidedvalue)) &
+(interaction=f15 -> (next(PI2.serverid)=SI1.serverId & next(PI2.decidedvalue)=SI1.decided)) &
+(interaction=f16 -> (next(PI2.serverid)=SI2.serverId & next(PI2.decidedvalue)=SI2.decided)) &
+((interaction!=f15 & interaction!=f16) -> (next(PI2.serverid)=PI2.serverid & next(PI2.decidedvalue)=PI2.decidedvalue)) &
+(interaction=f38 -> (next(PI3.serverid)=SI1.serverId & next(PI3.decidedvalue)=SI1.decided)) &
+(interaction=f39 -> (next(PI3.serverid)=SI2.serverId & next(PI3.decidedvalue)=SI2.decided)) &
+((interaction!=f38 & interaction!=f39) -> (next(PI3.serverid)=PI3.serverid & next(PI3.decidedvalue)=PI3.decidedvalue)) &
+(interaction=f50 -> (next(PI4.serverid)=SI1.serverId & next(PI4.decidedvalue)=SI1.decided)) &
+(interaction=f51 -> (next(PI4.serverid)=SI2.serverId & next(PI4.decidedvalue)=SI2.decided)) &
+((interaction!=f50 & interaction!=f51) -> (next(PI4.serverid)=PI4.serverid & next(PI4.decidedvalue)=PI4.decidedvalue)) &
+(interaction=f25 -> (next(P1.serverid)=PI1.serverid & next(P1.decidedvalues)=PI1.decidedvalue)) &
+(interaction!=f25 -> (next(P1.serverid)=P1.serverid & next(P1.decidedvalues)=P1.decidedvalues)) &
+(interaction=f26 -> (next(P2.serverid)=PI2.serverid & next(P2.decidedvalues)=PI2.decidedvalue)) &
+(interaction!=f26 -> (next(P2.serverid)=P2.serverid & next(P2.decidedvalues)=P2.decidedvalues)) &
+(interaction=f40 -> (next(P3.serverid)=PI3.serverid & next(P3.decidedvalues)=PI3.decidedvalue)) &
+(interaction!=f40 -> (next(P3.serverid)=P3.serverid & next(P3.decidedvalues)=P3.decidedvalues)) &
+(interaction=f45 -> (next(P4.serverid)=PI4.serverid & next(P4.decidedvalues)=PI4.decidedvalue)) &
+(interaction!=f45 -> (next(P4.serverid)=P4.serverid & next(P4.decidedvalues)=P4.decidedvalues)) ;
+
+--1604seconds
+SPEC AG ((P1.place=reset & P2.place=reset) -> (P1.decision=P2.decision))

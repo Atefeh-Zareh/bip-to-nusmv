@@ -1,0 +1,75 @@
+model prodcons
+
+/*****************************/
+/* Definition of port types  */
+/*****************************/
+port type ePort            // Port with no associated data.
+port type intPort(int i)   // Port associated with an integer data.
+
+
+/*********************************/
+/* Definition of connector types */
+/*********************************/
+connector type SendRec(intPort s, intPort r) // Rendezvous between s, r
+  define [ s r ]
+  data int tmp
+  on s r
+    down {r.i = s.i;}
+end
+
+connector type Singleton(ePort p) // Singleton
+ define [p]
+end
+
+
+/***************************************/
+/* Definition of atomic type: Producer */
+/***************************************/
+atomic type Producer
+  data int x = 10
+  export port intPort prod(x)
+  export port ePort work
+
+  place PRODUCE, WORK
+
+  initial to PRODUCE
+  on prod from PRODUCE to WORK
+  on work from WORK to PRODUCE do x = x + 1;
+end
+
+/***************************************/
+/* Definition of atomic type: Consumer */
+/***************************************/
+atomic type Consumer
+  data int y = 0
+  export port intPort cons(y)
+  export port ePort work
+
+  place CONSUME, WORK
+
+  initial to CONSUME
+  on cons from CONSUME to WORK
+  on work from WORK to CONSUME
+end
+
+/*************************************/
+/* definition of compound type: Team */
+/*************************************/
+
+compound type Team
+
+  component Producer P
+  component Consumer C
+
+  connector SendRec Communicate(P.prod, C.cons)
+  connector Singleton P_work(P.work)
+  connector Singleton C_work(C.work)
+
+end
+
+/* instantiation of the root component */
+
+component Team T
+
+end
+

@@ -1,0 +1,291 @@
+//without monitor
+// SPEC AG ((plug1.place=S7 & plug2.place=S8) -> (plug1.decidedValue=plug2.decidedValue))
+model Quorum42
+
+	port type FirstType
+	port type SecondType(int x)
+	port type ThirdType(int x, int y)
+	port type ForthType(int x, int y, int z)	
+
+	atomic type CustomerPlugQuorum(int id)
+		
+		data int proposedValue // 4
+		data int decidedValueS // 4
+		data int decidedValue  // 4
+      		
+		data bool trigger
+		data int serverId	// 2
+
+		export port SecondType sendToChannel(proposedValue)
+		export port ThirdType recieveFromServer(serverId,decidedValueS)
+		export port FirstType sendToClient // MODIFIED
+		export port FirstType switchB // MODIFIED
+		export port FirstType ticker // MODIFIED
+		export port FirstType singleton1 // MODIFIED
+		export port FirstType singleton2 // MODIFIED
+
+		place S1,S2,S3,S4,S5,S6,S7,S8,S5temp
+
+		initial to S1 do {proposedValue=id; decidedValue=0; trigger=false;serverId=0;}
+		
+		on sendToChannel from S1 to S2
+		on recieveFromServer from S2 to S3 do {decidedValue=decidedValueS;}
+		on ticker from S2 to S4
+		on recieveFromServer from S4 to S6 do {decidedValue=decidedValueS;}
+
+
+		on recieveFromServer from S3 to S5temp  
+		
+		on singleton1 from S5temp to S5 provided (decidedValue != decidedValueS) do {trigger=false; decidedValue=proposedValue;}
+		on singleton2 from S5temp to S5 provided (decidedValue == decidedValueS) do trigger = true;
+
+
+		on ticker from S3 to S6
+		on switchB from S6 to S8
+		on switchB from S5 to S8 provided(!trigger)
+		on sendToClient from S5 to S7 provided(trigger)
+		on ticker from S7 to S7
+		on ticker from S8 to S8
+		on ticker from S4 to S4
+	end
+
+	atomic type Server(int id)
+
+		data int decidedValue  // 4
+		data int proposedValue // 4
+		data int serverId      // 2
+		data int ClientId      // 4
+
+		export port ThirdType RcvFromChannel(ClientId,proposedValue)
+		export port ThirdType SendToServerC(ClientId,decidedValue)
+		export port FirstType singleton1 // MODIFIED
+		export port FirstType singleton2 // MODIFIED
+		
+		place RECEIVE,SEND, SEND_TEMP
+		initial to RECEIVE do { serverId=id; decidedValue=0;}
+
+		on RcvFromChannel from RECEIVE to SEND_TEMP
+	
+		on singleton1 from SEND_TEMP to SEND provided decidedValue == 0 do decidedValue=proposedValue;
+		on singleton2 from SEND_TEMP to SEND provided decidedValue != 0
+		
+		on SendToServerC from SEND to RECEIVE
+	end
+
+	atomic type plugConnector(int id)
+//without message duplication
+
+		data int clientId   // 4
+		data int serverId   // 2
+		data bool server1   
+		data bool server2
+		data int proposedValue  // 4
+		data int decidedValue   // 4
+
+		export port SecondType rcvPlug(proposedValue)
+		export port ThirdType sendClient(serverId,decidedValue)	
+
+		export port ThirdType SendS1(clientId,proposedValue)
+		export port ThirdType SendS2(clientId,proposedValue)
+		export port ForthType rcvServer(clientId,serverId,decidedValue)
+		//export port FirstType Back // MODIFIED
+
+		place start_rcvFServer, sendServer_rcvFServer, start_sendTClient, sendServer_sendTClient
+		initial to start_rcvFServer do {server1=false;server2=false;clientId=id;}
+
+		on rcvPlug from start_rcvFServer to sendServer_rcvFServer
+		on rcvPlug from start_sendTClient to sendServer_sendTClient
+
+		on SendS1 from sendServer_rcvFServer to sendServer_rcvFServer provided(!server1) do {server1=true;}
+		on SendS1 from sendServer_sendTClient to sendServer_sendTClient provided(!server1) do {server1=true;}
+
+		on SendS2 from sendServer_rcvFServer to sendServer_rcvFServer provided(!server2) do {server2=true;}
+		on SendS2 from sendServer_sendTClient to sendServer_sendTClient provided(!server2) do {server2=true;}
+
+		//on Back from sendServer_rcvFServer to start_rcvFServer provided((server1==1) && (server2==1)) do {server1=0; server2=0;}
+		//on Back from sendServer_sendTClient to start_sendTClient provided((server1==1) && (server2==1)) do {server1=0; server2=0;}
+
+		on rcvServer from start_rcvFServer to start_sendTClient
+		on rcvServer from sendServer_rcvFServer to sendServer_sendTClient
+	
+		on sendClient from start_sendTClient to start_rcvFServer
+		on sendClient from sendServer_sendTClient to sendServer_rcvFServer
+	end
+
+	atomic type ServerConnector(int id)
+	// server failure
+	// message lost
+		data int serverId  // 2
+		data int proposed  // 4
+		data int decided   // 4
+		data int clientIdSend  // 4
+		data int clientIdRcv   // 4
+
+		export port ThirdType rcvPlugC(clientIdRcv,proposed)
+		export port ThirdType sendServer(clientIdRcv,proposed)
+		export port ThirdType rcvServer(clientIdSend,decided)
+		export port ForthType sendPlug(clientIdSend,serverId,decided)
+
+		export port FirstType loose 	// MODIFIED
+		export port FirstType msglost  	// MODIFIED
+
+		place rcvPlug_rcvFServer, sendTServer_rcvFServer, crash_rcvFServer, rcvPlug_sendPlugC, sendTServer_sendPlugC, crash_sendPlugC
+		initial to rcvPlug_rcvFServer do { serverId=id; }
+
+		on rcvPlugC from rcvPlug_rcvFServer to sendTServer_rcvFServer
+		on rcvPlugC from rcvPlug_sendPlugC to sendTServer_sendPlugC
+
+		on loose from sendTServer_rcvFServer to crash_rcvFServer
+		on loose from sendTServer_sendPlugC to crash_sendPlugC
+
+		on rcvPlugC from crash_rcvFServer to crash_rcvFServer
+		on rcvPlugC from crash_sendPlugC to crash_sendPlugC
+
+		on msglost from sendTServer_rcvFServer to rcvPlug_rcvFServer
+		on msglost from sendTServer_sendPlugC to rcvPlug_sendPlugC
+
+		on sendServer from sendTServer_rcvFServer to rcvPlug_rcvFServer
+		on sendServer from sendTServer_sendPlugC to rcvPlug_sendPlugC
+ 
+		on rcvServer from rcvPlug_rcvFServer to rcvPlug_sendPlugC
+		on rcvServer from sendTServer_rcvFServer to sendTServer_sendPlugC
+		on rcvServer from crash_rcvFServer to crash_sendPlugC
+
+		on sendPlug from rcvPlug_sendPlugC to rcvPlug_rcvFServer
+		on sendPlug from sendTServer_sendPlugC to sendTServer_rcvFServer
+		on sendPlug from crash_sendPlugC to crash_rcvFServer
+
+	end
+
+	
+
+	connector type SendFromPlugToPlugConnector(SecondType customerPlug, SecondType plugConn)
+		define customerPlug plugConn
+		
+		on customerPlug plugConn down { plugConn.x=customerPlug.x; }
+	end 
+
+	connector type SendFromPlugConToServerCon(ThirdType plugConn, ThirdType serverConn)
+		define plugConn serverConn
+
+		on plugConn serverConn down { serverConn.x=plugConn.x; serverConn.y=plugConn.y;}
+	end
+
+	connector type SendFromServerConnToServer(ThirdType serverConn, ThirdType server)
+		define serverConn server 
+
+		on serverConn server  down { server.x=serverConn.x; server.y=serverConn.y;}
+	end
+
+	connector type SendFromServerToServerC(ThirdType server, ThirdType serverC)
+		define server serverC
+
+		on server serverC down { serverC.x=server.x; serverC.y=server.y;}
+	end
+
+	connector type ServerCPlugC(ForthType serverC, ForthType plugC )
+		define serverC plugC
+
+		on serverC plugC provided (serverC.x==plugC.x) down { plugC.y=serverC.y; plugC.z=serverC.z;}
+	end
+
+	connector type PlugCToPlug (ThirdType plugC, ThirdType plug)
+		define plugC plug
+
+		on plugC plug down { plug.x=plugC.x; plug.y=plugC.y; }
+	end
+
+	connector type Singleton (FirstType p)
+		define p
+
+		on p provided true up {} down { }
+	end
+
+
+	
+
+	compound type Root
+
+		component CustomerPlugQuorum plug1(1)
+		component CustomerPlugQuorum plug2(2)
+
+
+		component plugConnector plugC1(1)
+		component plugConnector plugC2(2)
+
+
+		component ServerConnector serverC1(1)
+		component ServerConnector serverC2(2)
+		component Server s1(1)
+		component Server s2(2)
+
+		//SINGLETON
+
+		
+		connector Singleton c1(plug1.sendToClient)
+		connector Singleton c2(plug2.sendToClient)
+	
+
+		connector Singleton c5(plug1.switchB)
+		connector Singleton c6(plug2.switchB)
+
+
+		connector Singleton c9(plug1.ticker)
+		connector Singleton c10(plug2.ticker)
+
+
+		//connector Singleton c13(plugC1.Back)
+		//connector Singleton c14(plugC2.Back)
+		//connector Singleton c15(plugC3.Back)
+		//connector Singleton c16(plugC4.Back)
+
+		connector Singleton c17(serverC1.loose)
+		connector Singleton c18(serverC1.msglost)
+		connector Singleton c19(serverC2.loose)
+		connector Singleton c20(serverC2.msglost)
+
+		connector Singleton c51(plug1.singleton1)
+		connector Singleton c61(plug2.singleton1)
+	
+		connector Singleton c71(s1.singleton1)
+		connector Singleton c81(s2.singleton1)
+
+		connector Singleton c52(plug1.singleton2)
+		connector Singleton c62(plug2.singleton2)
+	
+		connector Singleton c72(s1.singleton2)
+		connector Singleton c82(s2.singleton2)
+
+
+		//END SINGLETON
+
+		connector SendFromPlugToPlugConnector PlugToPlugConn1 (plug1.sendToChannel,plugC1.rcvPlug)
+		connector SendFromPlugConToServerCon plugConn1Toserv1Conn (plugC1.SendS1,serverC1.rcvPlugC)
+		connector SendFromPlugConToServerCon plugConn1Toserv2Conn (plugC1.SendS2,serverC2.rcvPlugC)
+		connector SendFromServerConnToServer serverConnToServer (serverC1.sendServer,s1.RcvFromChannel)
+		
+		connector SendFromServerToServerC server1ToserverC1 (s1.SendToServerC,serverC1.rcvServer)
+		connector ServerCPlugC serverC1ToplugC1 (serverC1.sendPlug,plugC1.rcvServer)
+		connector ServerCPlugC serverC1ToplugC2 (serverC1.sendPlug,plugC2.rcvServer)
+		connector PlugCToPlug plugC1Toplug1 (plugC1.sendClient,plug1.recieveFromServer)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		connector SendFromPlugToPlugConnector PlugToPlugConn2 (plug2.sendToChannel,plugC2.rcvPlug)
+		connector SendFromPlugConToServerCon plugConn2Toserv1Conn (plugC2.SendS1,serverC1.rcvPlugC)
+		connector SendFromPlugConToServerCon plugConn2Toserv2Conn (plugC2.SendS2,serverC2.rcvPlugC)
+		connector SendFromServerConnToServer serverConn2ToServer2 (serverC2.sendServer,s2.RcvFromChannel)
+
+		connector SendFromServerToServerC server2ToserverC2 (s2.SendToServerC,serverC2.rcvServer)
+		connector ServerCPlugC serverC2ToplugC1 (serverC2.sendPlug,plugC1.rcvServer)
+		connector ServerCPlugC serverC2ToplugC2 (serverC2.sendPlug,plugC2.rcvServer)
+		connector PlugCToPlug plugC2Toplug2 (plugC2.sendClient,plug2.recieveFromServer)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+	end
+
+	component Root r
+end

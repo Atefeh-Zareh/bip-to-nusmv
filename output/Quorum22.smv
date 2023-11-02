@@ -1,0 +1,479 @@
+MODULE PLUGC1(active_interaction, NuDPid)
+
+	VAR
+		NuPrcvPlug		:		boolean;
+		NuPsendClient		:		boolean;
+		NuPSendS1		:		boolean;
+		NuPSendS2		:		boolean;
+		NuPrcvServer		:		boolean;
+		NuVclientId		:		unsigned word[2];
+		NuVserverId		:		unsigned word[2];
+		NuVserver1		:		boolean;
+		NuVserver2		:		boolean;
+		NuVproposedValue		:		unsigned word[2];
+		NuVdecidedValue		:		unsigned word[2];
+		Nuplace		:		{NuSstart_rcvFServer, NuSsendServer_rcvFServer, NuSstart_sendTClient, NuSsendServer_sendTClient};
+
+
+	INIT
+		( (Nuplace) = (NuSstart_rcvFServer) ) &
+		( (NuVserver1) = (FALSE) ) &
+		( (NuVserver2) = (FALSE) ) &
+		( (NuVclientId) = (NuDPid) );
+
+	INVAR
+		( (NuPrcvPlug) <-> (( (( (Nuplace) = (NuSstart_rcvFServer) )) | (( (Nuplace) = (NuSstart_sendTClient) )) )) ) &
+		( (NuPrcvServer) <-> (( (( (Nuplace) = (NuSstart_rcvFServer) )) | (( (Nuplace) = (NuSsendServer_rcvFServer) )) )) ) &
+		( (NuPSendS2) <-> (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( !(NuVserver2) )) )) | (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( !(NuVserver2) )) )) )) ) &
+		( (NuPSendS1) <-> (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( !(NuVserver1) )) )) | (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( !(NuVserver1) )) )) )) ) &
+		( (NuPsendClient) <-> (( (( (Nuplace) = (NuSstart_sendTClient) )) | (( (Nuplace) = (NuSsendServer_sendTClient) )) )) );
+
+	TRANS
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI19) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI19) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserver1)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserver1)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserver2)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserver2)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSstart_sendTClient) )) )) & (( (active_interaction) = (NuI24) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSstart_sendTClient) )) )) & (( (active_interaction) = (NuI32) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI24) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI32) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_sendTClient) )) & (( (next(Nuplace)) = (NuSstart_rcvFServer) )) )) & (( (active_interaction) = (NuI26) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI26) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (active_interaction) != (NuI26) )) & (( (( (active_interaction) != (NuI32) )) & (( (( (active_interaction) != (NuI24) )) & (( (( (active_interaction) != (NuI21) )) & (( (( (active_interaction) != (NuI20) )) & (( (( (active_interaction) != (NuI19) )) & (( (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) )) )) )) )) )) );
+
+
+MODULE SERVERC1(active_interaction, NuDPid)
+
+	VAR
+		NuPrcvPlugC		:		boolean;
+		NuPsendServer		:		boolean;
+		NuPrcvServer		:		boolean;
+		NuPsendPlug		:		boolean;
+		NuPloose		:		boolean;
+		NuPmsglost		:		boolean;
+		NuVserverId		:		unsigned word[2];
+		NuVproposed		:		unsigned word[2];
+		NuVdecided		:		unsigned word[2];
+		NuVclientIdSend		:		unsigned word[2];
+		NuVclientIdRcv		:		unsigned word[2];
+		Nuplace		:		{NuSrcvPlug_rcvFServer, NuSsendTServer_rcvFServer, NuScrash_rcvFServer, NuSrcvPlug_sendPlugC, NuSsendTServer_sendPlugC, NuScrash_sendPlugC};
+
+
+	INIT
+		( (Nuplace) = (NuSrcvPlug_rcvFServer) ) &
+		( (NuVserverId) = (NuDPid) );
+
+	INVAR
+		( (NuPsendPlug) <-> (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) | (( (Nuplace) = (NuScrash_sendPlugC) )) )) ) &
+		( (NuPloose) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) ) &
+		( (NuPrcvPlugC) <-> (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) | (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) )) | (( (Nuplace) = (NuScrash_rcvFServer) )) )) | (( (Nuplace) = (NuScrash_sendPlugC) )) )) ) &
+		( (NuPrcvServer) <-> (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_rcvFServer) )) )) | (( (Nuplace) = (NuScrash_rcvFServer) )) )) ) &
+		( (NuPmsglost) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) ) &
+		( (NuPsendServer) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) );
+
+	TRANS
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI7) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI7) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI20) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI8) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI8) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI22) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI22) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI23) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI23) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI23) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI24) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI25) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI24) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI25) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI24) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI25) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (active_interaction) != (NuI25) )) & (( (( (active_interaction) != (NuI24) )) & (( (( (active_interaction) != (NuI23) )) & (( (( (active_interaction) != (NuI22) )) & (( (( (active_interaction) != (NuI8) )) & (( (( (active_interaction) != (NuI7) )) & (( (( (active_interaction) != (NuI28) )) & (( (( (active_interaction) != (NuI20) )) & (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) )) )) )) )) )) )) )) )) );
+
+
+MODULE PLUG2(active_interaction, NuDPid)
+
+	VAR
+		NuPsendToChannel		:		boolean;
+		NuPrecieveFromServer		:		boolean;
+		NuPsendToClient		:		boolean;
+		NuPswitchB		:		boolean;
+		NuPticker		:		boolean;
+		NuPsingleton1		:		boolean;
+		NuPsingleton2		:		boolean;
+		NuVproposedValue		:		unsigned word[2];
+		NuVdecidedValueS		:		unsigned word[2];
+		NuVdecidedValue		:		unsigned word[2];
+		NuVtrigger		:		boolean;
+		NuVserverId		:		unsigned word[2];
+		Nuplace		:		{NuSS1, NuSS2, NuSS3, NuSS4, NuSS5, NuSS6, NuSS7, NuSS8, NuSS5temp};
+
+
+	INIT
+		( (Nuplace) = (NuSS1) ) &
+		( (NuVproposedValue) = (NuDPid) ) &
+		( (NuVdecidedValue) = (0ud2_0) ) &
+		( (NuVtrigger) = (FALSE) ) &
+		( (NuVserverId) = (0ud2_0) );
+
+	INVAR
+		( (NuPsendToChannel) <-> (( (Nuplace) = (NuSS1) )) ) &
+		( (NuPticker) <-> (( (( (( (( (( (Nuplace) = (NuSS2) )) | (( (Nuplace) = (NuSS3) )) )) | (( (Nuplace) = (NuSS7) )) )) | (( (Nuplace) = (NuSS8) )) )) | (( (Nuplace) = (NuSS4) )) )) ) &
+		( (NuPsingleton1) <-> (( (( (Nuplace) = (NuSS5temp) )) & (( (NuVdecidedValue) != (NuVdecidedValueS) )) )) ) &
+		( (NuPsingleton2) <-> (( (( (Nuplace) = (NuSS5temp) )) & (( (NuVdecidedValue) = (NuVdecidedValueS) )) )) ) &
+		( (NuPrecieveFromServer) <-> (( (( (( (Nuplace) = (NuSS2) )) | (( (Nuplace) = (NuSS4) )) )) | (( (Nuplace) = (NuSS3) )) )) ) &
+		( (NuPsendToClient) <-> (( (( (Nuplace) = (NuSS5) )) & (NuVtrigger) )) ) &
+		( (NuPswitchB) <-> (( (( (Nuplace) = (NuSS6) )) | (( (( (Nuplace) = (NuSS5) )) & (( !(NuVtrigger) )) )) )) );
+
+	TRANS
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS1) )) & (( (next(Nuplace)) = (NuSS2) )) )) & (( (active_interaction) = (NuI27) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS2) )) & (( (next(Nuplace)) = (NuSS3) )) )) & (( (active_interaction) = (NuI34) )) )) & (( (next(NuVdecidedValue)) = (next(NuVdecidedValueS)) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS2) )) & (( (next(Nuplace)) = (NuSS4) )) )) & (( (active_interaction) = (NuI6) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS4) )) & (( (next(Nuplace)) = (NuSS6) )) )) & (( (active_interaction) = (NuI34) )) )) & (( (next(NuVdecidedValue)) = (next(NuVdecidedValueS)) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS3) )) & (( (next(Nuplace)) = (NuSS5temp) )) )) & (( (active_interaction) = (NuI34) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5temp) )) & (( (next(Nuplace)) = (NuSS5) )) )) & (( (active_interaction) = (NuI12) )) )) & (( (next(NuVtrigger)) = (FALSE) )) )) & (( (next(NuVdecidedValue)) = (NuVproposedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5temp) )) & (( (next(Nuplace)) = (NuSS5) )) )) & (( (active_interaction) = (NuI16) )) )) & (( (next(NuVtrigger)) = (TRUE) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS3) )) & (( (next(Nuplace)) = (NuSS6) )) )) & (( (active_interaction) = (NuI6) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS6) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI4) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI4) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5) )) & (( (next(Nuplace)) = (NuSS7) )) )) & (( (active_interaction) = (NuI2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS7) )) & (( (next(Nuplace)) = (NuSS7) )) )) & (( (active_interaction) = (NuI6) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS8) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI6) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS4) )) & (( (next(Nuplace)) = (NuSS4) )) )) & (( (active_interaction) = (NuI6) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (active_interaction) != (NuI2) )) & (( (( (active_interaction) != (NuI4) )) & (( (( (active_interaction) != (NuI16) )) & (( (( (active_interaction) != (NuI12) )) & (( (( (active_interaction) != (NuI6) )) & (( (( (active_interaction) != (NuI34) )) & (( (( (active_interaction) != (NuI27) )) & (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) )) )) )) )) )) )) );
+
+
+MODULE PLUG1(active_interaction, NuDPid)
+
+	VAR
+		NuPsendToChannel		:		boolean;
+		NuPrecieveFromServer		:		boolean;
+		NuPsendToClient		:		boolean;
+		NuPswitchB		:		boolean;
+		NuPticker		:		boolean;
+		NuPsingleton1		:		boolean;
+		NuPsingleton2		:		boolean;
+		NuVproposedValue		:		unsigned word[2];
+		NuVdecidedValueS		:		unsigned word[2];
+		NuVdecidedValue		:		unsigned word[2];
+		NuVtrigger		:		boolean;
+		NuVserverId		:		unsigned word[2];
+		Nuplace		:		{NuSS1, NuSS2, NuSS3, NuSS4, NuSS5, NuSS6, NuSS7, NuSS8, NuSS5temp};
+
+
+	INIT
+		( (Nuplace) = (NuSS1) ) &
+		( (NuVproposedValue) = (NuDPid) ) &
+		( (NuVdecidedValue) = (0ud2_0) ) &
+		( (NuVtrigger) = (FALSE) ) &
+		( (NuVserverId) = (0ud2_0) );
+
+	INVAR
+		( (NuPticker) <-> (( (( (( (( (( (Nuplace) = (NuSS2) )) | (( (Nuplace) = (NuSS3) )) )) | (( (Nuplace) = (NuSS7) )) )) | (( (Nuplace) = (NuSS8) )) )) | (( (Nuplace) = (NuSS4) )) )) ) &
+		( (NuPsingleton2) <-> (( (( (Nuplace) = (NuSS5temp) )) & (( (NuVdecidedValue) = (NuVdecidedValueS) )) )) ) &
+		( (NuPsingleton1) <-> (( (( (Nuplace) = (NuSS5temp) )) & (( (NuVdecidedValue) != (NuVdecidedValueS) )) )) ) &
+		( (NuPrecieveFromServer) <-> (( (( (( (Nuplace) = (NuSS2) )) | (( (Nuplace) = (NuSS4) )) )) | (( (Nuplace) = (NuSS3) )) )) ) &
+		( (NuPsendToChannel) <-> (( (Nuplace) = (NuSS1) )) ) &
+		( (NuPswitchB) <-> (( (( (Nuplace) = (NuSS6) )) | (( (( (Nuplace) = (NuSS5) )) & (( !(NuVtrigger) )) )) )) ) &
+		( (NuPsendToClient) <-> (( (( (Nuplace) = (NuSS5) )) & (NuVtrigger) )) );
+
+	TRANS
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS1) )) & (( (next(Nuplace)) = (NuSS2) )) )) & (( (active_interaction) = (NuI19) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS2) )) & (( (next(Nuplace)) = (NuSS3) )) )) & (( (active_interaction) = (NuI26) )) )) & (( (next(NuVdecidedValue)) = (next(NuVdecidedValueS)) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS2) )) & (( (next(Nuplace)) = (NuSS4) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS4) )) & (( (next(Nuplace)) = (NuSS6) )) )) & (( (active_interaction) = (NuI26) )) )) & (( (next(NuVdecidedValue)) = (next(NuVdecidedValueS)) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSS3) )) & (( (next(Nuplace)) = (NuSS5temp) )) )) & (( (active_interaction) = (NuI26) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5temp) )) & (( (next(Nuplace)) = (NuSS5) )) )) & (( (active_interaction) = (NuI11) )) )) & (( (next(NuVtrigger)) = (FALSE) )) )) & (( (next(NuVdecidedValue)) = (NuVproposedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5temp) )) & (( (next(Nuplace)) = (NuSS5) )) )) & (( (active_interaction) = (NuI15) )) )) & (( (next(NuVtrigger)) = (TRUE) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS3) )) & (( (next(Nuplace)) = (NuSS6) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS6) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI3) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI3) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS5) )) & (( (next(Nuplace)) = (NuSS7) )) )) & (( (active_interaction) = (NuI1) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS7) )) & (( (next(Nuplace)) = (NuSS7) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS8) )) & (( (next(Nuplace)) = (NuSS8) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSS4) )) & (( (next(Nuplace)) = (NuSS4) )) )) & (( (active_interaction) = (NuI5) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (active_interaction) != (NuI1) )) & (( (( (active_interaction) != (NuI3) )) & (( (( (active_interaction) != (NuI15) )) & (( (( (active_interaction) != (NuI11) )) & (( (( (active_interaction) != (NuI5) )) & (( (( (active_interaction) != (NuI26) )) & (( (( (active_interaction) != (NuI19) )) & (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValueS)) = (NuVdecidedValueS) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVtrigger)) = (NuVtrigger) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) )) )) )) )) )) )) );
+
+
+MODULE PLUGC2(active_interaction, NuDPid)
+
+	VAR
+		NuPrcvPlug		:		boolean;
+		NuPsendClient		:		boolean;
+		NuPSendS1		:		boolean;
+		NuPSendS2		:		boolean;
+		NuPrcvServer		:		boolean;
+		NuVclientId		:		unsigned word[2];
+		NuVserverId		:		unsigned word[2];
+		NuVserver1		:		boolean;
+		NuVserver2		:		boolean;
+		NuVproposedValue		:		unsigned word[2];
+		NuVdecidedValue		:		unsigned word[2];
+		Nuplace		:		{NuSstart_rcvFServer, NuSsendServer_rcvFServer, NuSstart_sendTClient, NuSsendServer_sendTClient};
+
+
+	INIT
+		( (Nuplace) = (NuSstart_rcvFServer) ) &
+		( (NuVserver1) = (FALSE) ) &
+		( (NuVserver2) = (FALSE) ) &
+		( (NuVclientId) = (NuDPid) );
+
+	INVAR
+		( (NuPrcvPlug) <-> (( (( (Nuplace) = (NuSstart_rcvFServer) )) | (( (Nuplace) = (NuSstart_sendTClient) )) )) ) &
+		( (NuPSendS1) <-> (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( !(NuVserver1) )) )) | (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( !(NuVserver1) )) )) )) ) &
+		( (NuPSendS2) <-> (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( !(NuVserver2) )) )) | (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( !(NuVserver2) )) )) )) ) &
+		( (NuPsendClient) <-> (( (( (Nuplace) = (NuSstart_sendTClient) )) | (( (Nuplace) = (NuSsendServer_sendTClient) )) )) ) &
+		( (NuPrcvServer) <-> (( (( (Nuplace) = (NuSstart_rcvFServer) )) | (( (Nuplace) = (NuSsendServer_rcvFServer) )) )) );
+
+	TRANS
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI27) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI27) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserver1)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI28) )) )) & (( (next(NuVserver1)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserver2)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserver2)) = (TRUE) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSstart_sendTClient) )) )) & (( (active_interaction) = (NuI25) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSstart_rcvFServer) )) & (( (next(Nuplace)) = (NuSstart_sendTClient) )) )) & (( (active_interaction) = (NuI33) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI25) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendServer_sendTClient) )) )) & (( (active_interaction) = (NuI33) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSstart_sendTClient) )) & (( (next(Nuplace)) = (NuSstart_rcvFServer) )) )) & (( (active_interaction) = (NuI34) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (( (( (( (( (( (( (( (Nuplace) = (NuSsendServer_sendTClient) )) & (( (next(Nuplace)) = (NuSsendServer_rcvFServer) )) )) & (( (active_interaction) = (NuI34) )) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) ) |
+		( (( (active_interaction) != (NuI34) )) & (( (( (active_interaction) != (NuI33) )) & (( (( (active_interaction) != (NuI25) )) & (( (( (active_interaction) != (NuI29) )) & (( (( (active_interaction) != (NuI28) )) & (( (( (active_interaction) != (NuI27) )) & (( (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVclientId)) = (NuVclientId) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVserver1)) = (NuVserver1) )) )) & (( (next(NuVserver2)) = (NuVserver2) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) )) )) )) )) )) );
+
+
+MODULE S1(active_interaction, NuDPid)
+
+	VAR
+		NuPRcvFromChannel		:		boolean;
+		NuPSendToServerC		:		boolean;
+		NuPsingleton1		:		boolean;
+		NuPsingleton2		:		boolean;
+		NuVdecidedValue		:		unsigned word[2];
+		NuVproposedValue		:		unsigned word[2];
+		NuVserverId		:		unsigned word[2];
+		NuVClientId		:		unsigned word[2];
+		Nuplace		:		{NuSRECEIVE, NuSSEND, NuSSEND_TEMP};
+
+
+	INIT
+		( (Nuplace) = (NuSRECEIVE) ) &
+		( (NuVserverId) = (NuDPid) ) &
+		( (NuVdecidedValue) = (0ud2_0) );
+
+	INVAR
+		( (NuPSendToServerC) <-> (( (Nuplace) = (NuSSEND) )) ) &
+		( (NuPsingleton2) <-> (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (NuVdecidedValue) != (0ud2_0) )) )) ) &
+		( (NuPRcvFromChannel) <-> (( (Nuplace) = (NuSRECEIVE) )) ) &
+		( (NuPsingleton1) <-> (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (NuVdecidedValue) = (0ud2_0) )) )) );
+
+	TRANS
+		( (( (( (( (( (Nuplace) = (NuSRECEIVE) )) & (( (next(Nuplace)) = (NuSSEND_TEMP) )) )) & (( (active_interaction) = (NuI22) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (next(Nuplace)) = (NuSSEND) )) )) & (( (active_interaction) = (NuI13) )) )) & (( (next(NuVdecidedValue)) = (NuVproposedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (next(Nuplace)) = (NuSSEND) )) )) & (( (active_interaction) = (NuI17) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND) )) & (( (next(Nuplace)) = (NuSRECEIVE) )) )) & (( (active_interaction) = (NuI23) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (active_interaction) != (NuI23) )) & (( (( (active_interaction) != (NuI17) )) & (( (( (active_interaction) != (NuI13) )) & (( (( (active_interaction) != (NuI22) )) & (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) )) )) )) )) );
+
+
+MODULE S2(active_interaction, NuDPid)
+
+	VAR
+		NuPRcvFromChannel		:		boolean;
+		NuPSendToServerC		:		boolean;
+		NuPsingleton1		:		boolean;
+		NuPsingleton2		:		boolean;
+		NuVdecidedValue		:		unsigned word[2];
+		NuVproposedValue		:		unsigned word[2];
+		NuVserverId		:		unsigned word[2];
+		NuVClientId		:		unsigned word[2];
+		Nuplace		:		{NuSRECEIVE, NuSSEND, NuSSEND_TEMP};
+
+
+	INIT
+		( (Nuplace) = (NuSRECEIVE) ) &
+		( (NuVserverId) = (NuDPid) ) &
+		( (NuVdecidedValue) = (0ud2_0) );
+
+	INVAR
+		( (NuPsingleton1) <-> (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (NuVdecidedValue) = (0ud2_0) )) )) ) &
+		( (NuPsingleton2) <-> (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (NuVdecidedValue) != (0ud2_0) )) )) ) &
+		( (NuPSendToServerC) <-> (( (Nuplace) = (NuSSEND) )) ) &
+		( (NuPRcvFromChannel) <-> (( (Nuplace) = (NuSRECEIVE) )) );
+
+	TRANS
+		( (( (( (( (( (Nuplace) = (NuSRECEIVE) )) & (( (next(Nuplace)) = (NuSSEND_TEMP) )) )) & (( (active_interaction) = (NuI30) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (next(Nuplace)) = (NuSSEND) )) )) & (( (active_interaction) = (NuI14) )) )) & (( (next(NuVdecidedValue)) = (NuVproposedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND_TEMP) )) & (( (next(Nuplace)) = (NuSSEND) )) )) & (( (active_interaction) = (NuI18) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (( (( (( (( (( (Nuplace) = (NuSSEND) )) & (( (next(Nuplace)) = (NuSRECEIVE) )) )) & (( (active_interaction) = (NuI31) )) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) ) |
+		( (( (active_interaction) != (NuI31) )) & (( (( (active_interaction) != (NuI18) )) & (( (( (active_interaction) != (NuI14) )) & (( (( (active_interaction) != (NuI30) )) & (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVdecidedValue)) = (NuVdecidedValue) )) )) & (( (next(NuVproposedValue)) = (NuVproposedValue) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVClientId)) = (NuVClientId) )) )) )) )) )) );
+
+
+MODULE SERVERC2(active_interaction, NuDPid)
+
+	VAR
+		NuPrcvPlugC		:		boolean;
+		NuPsendServer		:		boolean;
+		NuPrcvServer		:		boolean;
+		NuPsendPlug		:		boolean;
+		NuPloose		:		boolean;
+		NuPmsglost		:		boolean;
+		NuVserverId		:		unsigned word[2];
+		NuVproposed		:		unsigned word[2];
+		NuVdecided		:		unsigned word[2];
+		NuVclientIdSend		:		unsigned word[2];
+		NuVclientIdRcv		:		unsigned word[2];
+		Nuplace		:		{NuSrcvPlug_rcvFServer, NuSsendTServer_rcvFServer, NuScrash_rcvFServer, NuSrcvPlug_sendPlugC, NuSsendTServer_sendPlugC, NuScrash_sendPlugC};
+
+
+	INIT
+		( (Nuplace) = (NuSrcvPlug_rcvFServer) ) &
+		( (NuVserverId) = (NuDPid) );
+
+	INVAR
+		( (NuPrcvPlugC) <-> (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) | (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) )) | (( (Nuplace) = (NuScrash_rcvFServer) )) )) | (( (Nuplace) = (NuScrash_sendPlugC) )) )) ) &
+		( (NuPmsglost) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) ) &
+		( (NuPsendServer) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) ) &
+		( (NuPsendPlug) <-> (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) | (( (Nuplace) = (NuScrash_sendPlugC) )) )) ) &
+		( (NuPrcvServer) <-> (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_rcvFServer) )) )) | (( (Nuplace) = (NuScrash_rcvFServer) )) )) ) &
+		( (NuPloose) <-> (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) | (( (Nuplace) = (NuSsendTServer_sendPlugC) )) )) );
+
+	TRANS
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI9) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI9) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI21) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI29) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI10) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI10) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI30) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI30) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_rcvFServer) )) & (( (next(Nuplace)) = (NuSrcvPlug_sendPlugC) )) )) & (( (active_interaction) = (NuI31) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuSsendTServer_rcvFServer) )) & (( (next(Nuplace)) = (NuSsendTServer_sendPlugC) )) )) & (( (active_interaction) = (NuI31) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (Nuplace) = (NuScrash_rcvFServer) )) & (( (next(Nuplace)) = (NuScrash_sendPlugC) )) )) & (( (active_interaction) = (NuI31) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI32) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSrcvPlug_sendPlugC) )) & (( (next(Nuplace)) = (NuSrcvPlug_rcvFServer) )) )) & (( (active_interaction) = (NuI33) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI32) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuSsendTServer_sendPlugC) )) & (( (next(Nuplace)) = (NuSsendTServer_rcvFServer) )) )) & (( (active_interaction) = (NuI33) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI32) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (( (( (( (( (( (( (Nuplace) = (NuScrash_sendPlugC) )) & (( (next(Nuplace)) = (NuScrash_rcvFServer) )) )) & (( (active_interaction) = (NuI33) )) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) ) |
+		( (( (active_interaction) != (NuI33) )) & (( (( (active_interaction) != (NuI32) )) & (( (( (active_interaction) != (NuI31) )) & (( (( (active_interaction) != (NuI30) )) & (( (( (active_interaction) != (NuI10) )) & (( (( (active_interaction) != (NuI9) )) & (( (( (active_interaction) != (NuI29) )) & (( (( (active_interaction) != (NuI21) )) & (( (( (( (( (( (( (next(Nuplace)) = (Nuplace) )) & (( (next(NuVserverId)) = (NuVserverId) )) )) & (( (next(NuVproposed)) = (NuVproposed) )) )) & (( (next(NuVdecided)) = (NuVdecided) )) )) & (( (next(NuVclientIdSend)) = (NuVclientIdSend) )) )) & (( (next(NuVclientIdRcv)) = (NuVclientIdRcv) )) )) )) )) )) )) )) )) )) );
+
+
+MODULE main
+
+	VAR
+		NuInteraction		:		{NuI1, NuI2, NuI3, NuI4, NuI5, NuI6, NuI7, NuI8, NuI9, NuI10, NuI11, NuI12, NuI13, NuI14, NuI15, NuI16, NuI17, NuI18, NuI19, NuI20, NuI21, NuI22, NuI23, NuI24, NuI25, NuI26, NuI27, NuI28, NuI29, NuI30, NuI31, NuI32, NuI33, NuI34};
+		plugc1	:	PLUGC1(NuInteraction, 0ud2_1);
+		serverc1	:	SERVERC1(NuInteraction, 0ud2_1);
+		plug2	:	PLUG2(NuInteraction, 0ud2_2);
+		plug1	:	PLUG1(NuInteraction, 0ud2_1);
+		plugc2	:	PLUGC2(NuInteraction, 0ud2_2);
+		s1	:	S1(NuInteraction, 0ud2_1);
+		s2	:	S2(NuInteraction, 0ud2_2);
+		serverc2	:	SERVERC2(NuInteraction, 0ud2_2);
+
+	DEFINE
+		c1		:=		( (plug1.NuPsendToClient) & (TRUE) );
+		c2		:=		( (plug2.NuPsendToClient) & (TRUE) );
+		c5		:=		( (plug1.NuPswitchB) & (TRUE) );
+		c6		:=		( (plug2.NuPswitchB) & (TRUE) );
+		c9		:=		( (plug1.NuPticker) & (TRUE) );
+		c10		:=		( (plug2.NuPticker) & (TRUE) );
+		c17		:=		( (serverc1.NuPloose) & (TRUE) );
+		c18		:=		( (serverc1.NuPmsglost) & (TRUE) );
+		c19		:=		( (serverc2.NuPloose) & (TRUE) );
+		c20		:=		( (serverc2.NuPmsglost) & (TRUE) );
+		c51		:=		( (plug1.NuPsingleton1) & (TRUE) );
+		c61		:=		( (plug2.NuPsingleton1) & (TRUE) );
+		c71		:=		( (s1.NuPsingleton1) & (TRUE) );
+		c81		:=		( (s2.NuPsingleton1) & (TRUE) );
+		c52		:=		( (plug1.NuPsingleton2) & (TRUE) );
+		c62		:=		( (plug2.NuPsingleton2) & (TRUE) );
+		c72		:=		( (s1.NuPsingleton2) & (TRUE) );
+		c82		:=		( (s2.NuPsingleton2) & (TRUE) );
+		PlugToPlugConn1		:=		( (plug1.NuPsendToChannel) & (plugc1.NuPrcvPlug) );
+		plugConn1Toserv1Conn		:=		( (plugc1.NuPSendS1) & (serverc1.NuPrcvPlugC) );
+		plugConn1Toserv2Conn		:=		( (plugc1.NuPSendS2) & (serverc2.NuPrcvPlugC) );
+		serverConnToServer		:=		( (serverc1.NuPsendServer) & (s1.NuPRcvFromChannel) );
+		server1ToserverC1		:=		( (s1.NuPSendToServerC) & (serverc1.NuPrcvServer) );
+		serverC1ToplugC1		:=		( (( (serverc1.NuPsendPlug) & (plugc1.NuPrcvServer) )) & (( (serverc1.NuVclientIdSend) = (plugc1.NuVclientId) )) );
+		serverC1ToplugC2		:=		( (( (serverc1.NuPsendPlug) & (plugc2.NuPrcvServer) )) & (( (serverc1.NuVclientIdSend) = (plugc2.NuVclientId) )) );
+		plugC1Toplug1		:=		( (plugc1.NuPsendClient) & (plug1.NuPrecieveFromServer) );
+		PlugToPlugConn2		:=		( (plug2.NuPsendToChannel) & (plugc2.NuPrcvPlug) );
+		plugConn2Toserv1Conn		:=		( (plugc2.NuPSendS1) & (serverc1.NuPrcvPlugC) );
+		plugConn2Toserv2Conn		:=		( (plugc2.NuPSendS2) & (serverc2.NuPrcvPlugC) );
+		serverConn2ToServer2		:=		( (serverc2.NuPsendServer) & (s2.NuPRcvFromChannel) );
+		server2ToserverC2		:=		( (s2.NuPSendToServerC) & (serverc2.NuPrcvServer) );
+		serverC2ToplugC1		:=		( (( (serverc2.NuPsendPlug) & (plugc1.NuPrcvServer) )) & (( (serverc2.NuVclientIdSend) = (plugc1.NuVclientId) )) );
+		serverC2ToplugC2		:=		( (( (serverc2.NuPsendPlug) & (plugc2.NuPrcvServer) )) & (( (serverc2.NuVclientIdSend) = (plugc2.NuVclientId) )) );
+		plugC2Toplug2		:=		( (plugc2.NuPsendClient) & (plug2.NuPrecieveFromServer) );
+
+
+	INVAR
+		( (( (NuInteraction) = (NuI1) )) -> (c1) ) &
+		( (( (NuInteraction) = (NuI2) )) -> (c2) ) &
+		( (( (NuInteraction) = (NuI3) )) -> (c5) ) &
+		( (( (NuInteraction) = (NuI4) )) -> (c6) ) &
+		( (( (NuInteraction) = (NuI5) )) -> (c9) ) &
+		( (( (NuInteraction) = (NuI6) )) -> (c10) ) &
+		( (( (NuInteraction) = (NuI7) )) -> (c17) ) &
+		( (( (NuInteraction) = (NuI8) )) -> (c18) ) &
+		( (( (NuInteraction) = (NuI9) )) -> (c19) ) &
+		( (( (NuInteraction) = (NuI10) )) -> (c20) ) &
+		( (( (NuInteraction) = (NuI11) )) -> (c51) ) &
+		( (( (NuInteraction) = (NuI12) )) -> (c61) ) &
+		( (( (NuInteraction) = (NuI13) )) -> (c71) ) &
+		( (( (NuInteraction) = (NuI14) )) -> (c81) ) &
+		( (( (NuInteraction) = (NuI15) )) -> (c52) ) &
+		( (( (NuInteraction) = (NuI16) )) -> (c62) ) &
+		( (( (NuInteraction) = (NuI17) )) -> (c72) ) &
+		( (( (NuInteraction) = (NuI18) )) -> (c82) ) &
+		( (( (NuInteraction) = (NuI19) )) -> (PlugToPlugConn1) ) &
+		( (( (NuInteraction) = (NuI20) )) -> (plugConn1Toserv1Conn) ) &
+		( (( (NuInteraction) = (NuI21) )) -> (plugConn1Toserv2Conn) ) &
+		( (( (NuInteraction) = (NuI22) )) -> (serverConnToServer) ) &
+		( (( (NuInteraction) = (NuI23) )) -> (server1ToserverC1) ) &
+		( (( (NuInteraction) = (NuI24) )) -> (serverC1ToplugC1) ) &
+		( (( (NuInteraction) = (NuI25) )) -> (serverC1ToplugC2) ) &
+		( (( (NuInteraction) = (NuI26) )) -> (plugC1Toplug1) ) &
+		( (( (NuInteraction) = (NuI27) )) -> (PlugToPlugConn2) ) &
+		( (( (NuInteraction) = (NuI28) )) -> (plugConn2Toserv1Conn) ) &
+		( (( (NuInteraction) = (NuI29) )) -> (plugConn2Toserv2Conn) ) &
+		( (( (NuInteraction) = (NuI30) )) -> (serverConn2ToServer2) ) &
+		( (( (NuInteraction) = (NuI31) )) -> (server2ToserverC2) ) &
+		( (( (NuInteraction) = (NuI32) )) -> (serverC2ToplugC1) ) &
+		( (( (NuInteraction) = (NuI33) )) -> (serverC2ToplugC2) ) &
+		( (( (NuInteraction) = (NuI34) )) -> (plugC2Toplug2) );
+
+	TRANS
+		( (( (NuInteraction) = (NuI33) )) -> (( (( (next(plugc2.NuVserverId)) = (serverc2.NuVserverId) )) & (( (next(plugc2.NuVdecidedValue)) = (serverc2.NuVdecided) )) )) ) &
+		( (( (NuInteraction) = (NuI24) )) -> (( (( (next(plugc1.NuVserverId)) = (serverc1.NuVserverId) )) & (( (next(plugc1.NuVdecidedValue)) = (serverc1.NuVdecided) )) )) ) &
+		( (( (NuInteraction) = (NuI28) )) -> (( (( (next(serverc1.NuVclientIdRcv)) = (plugc2.NuVclientId) )) & (( (next(serverc1.NuVproposed)) = (plugc2.NuVproposedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI22) )) -> (( (( (next(s1.NuVClientId)) = (serverc1.NuVclientIdRcv) )) & (( (next(s1.NuVproposedValue)) = (serverc1.NuVproposed) )) )) ) &
+		( (( (NuInteraction) = (NuI32) )) -> (( (( (next(plugc1.NuVserverId)) = (serverc2.NuVserverId) )) & (( (next(plugc1.NuVdecidedValue)) = (serverc2.NuVdecided) )) )) ) &
+		( (( (NuInteraction) = (NuI20) )) -> (( (( (next(serverc1.NuVclientIdRcv)) = (plugc1.NuVclientId) )) & (( (next(serverc1.NuVproposed)) = (plugc1.NuVproposedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI21) )) -> (( (( (next(serverc2.NuVclientIdRcv)) = (plugc1.NuVclientId) )) & (( (next(serverc2.NuVproposed)) = (plugc1.NuVproposedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI31) )) -> (( (( (next(serverc2.NuVclientIdSend)) = (s2.NuVClientId) )) & (( (next(serverc2.NuVdecided)) = (s2.NuVdecidedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI29) )) -> (( (( (next(serverc2.NuVclientIdRcv)) = (plugc2.NuVclientId) )) & (( (next(serverc2.NuVproposed)) = (plugc2.NuVproposedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI34) )) -> (( (( (next(plug2.NuVserverId)) = (plugc2.NuVserverId) )) & (( (next(plug2.NuVdecidedValueS)) = (plugc2.NuVdecidedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI30) )) -> (( (( (next(s2.NuVClientId)) = (serverc2.NuVclientIdRcv) )) & (( (next(s2.NuVproposedValue)) = (serverc2.NuVproposed) )) )) ) &
+		( (( (NuInteraction) = (NuI27) )) -> (( (next(plugc2.NuVproposedValue)) = (plug2.NuVproposedValue) )) ) &
+		( (( (NuInteraction) = (NuI25) )) -> (( (( (next(plugc2.NuVserverId)) = (serverc1.NuVserverId) )) & (( (next(plugc2.NuVdecidedValue)) = (serverc1.NuVdecided) )) )) ) &
+		( (( (NuInteraction) = (NuI23) )) -> (( (( (next(serverc1.NuVclientIdSend)) = (s1.NuVClientId) )) & (( (next(serverc1.NuVdecided)) = (s1.NuVdecidedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI26) )) -> (( (( (next(plug1.NuVserverId)) = (plugc1.NuVserverId) )) & (( (next(plug1.NuVdecidedValueS)) = (plugc1.NuVdecidedValue) )) )) ) &
+		( (( (NuInteraction) = (NuI19) )) -> (( (next(plugc1.NuVproposedValue)) = (plug1.NuVproposedValue) )) );
+
+SPEC AG ((plug1.Nuplace=NuSS7 & plug2.Nuplace=NuSS8) -> (plug1.NuVdecidedValue=plug2.NuVdecidedValue))

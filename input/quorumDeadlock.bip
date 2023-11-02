@@ -1,0 +1,547 @@
+model Quorum
+
+	port type FirstType
+	port type SecondType(int x)
+	port type ThirdType(int x, int y)
+	port type ForthType(int x, int y, int z)
+
+	//ATOMS
+
+	atomic type Customer(int id)
+		data int customerId                                                                    
+		data int proposeValue									//the value that he proposes in one session
+		data int decided									//the decided value in one session	
+
+		//ports used for synchronization
+	
+		export port SecondType propose(proposeValue)
+		export port SecondType decide(decided)
+		
+
+		place SEND, RECEIVE, RESET, DEADLOCK
+
+		initial to SEND do {customerId=id; proposeValue=id;}
+
+		on propose from SEND to RECEIVE 
+		on decide from RECEIVE to SEND //do {printf("Client%d decided value %d\n\n",customerId,decided);} 
+		
+	end	
+
+	atomic type CustomerPlugQuorum(int id)
+
+		data int server1
+		data int server2
+		data int PlugId
+		data int customerId
+		
+		data int proposedValue
+		data int decidedValueS   //value from every server
+		data int decidedValue    //value received from first server
+      		
+ 		data int counter         //to keep track when waiting all servers to send decided value
+		data int ticker          //to keep track of timer
+		data int serverId 	 
+		data int switchtoBackup	 //is set to one when error ocures and he needs to switch	
+
+		export port SecondType receive(proposedValue)
+		export port SecondType sendToChannel(proposedValue)
+		export port ThirdType recieveFromServer(serverId,decidedValueS)
+		export port FirstType tickerPort
+		export port FirstType singlton
+		export port SecondType sendToClient(decidedValue)
+		export port SecondType switchB(decidedValue)
+		
+
+		place START, SENDCHANNEL, RECIEVESERVERS, RECIEVESERVERS1, RECIEVESERVERS2, FINAL, RCV, RCV1, RCV2, SENDCUSTOMER, BACKUP, RESET, DEADLOCK
+
+		initial to START do { decidedValue=-1; server1=0; server2=0; switchtoBackup=0; PlugId=id; ticker=0; customerId=id; }
+		
+		on receive from START to SENDCHANNEL //do { printf("Received value:%d from Customer:%d in plug:%d\n\n",proposedValue, customerId,PlugId);}
+		on tickerPort from SENDCHANNEL to SENDCHANNEL //do { printf("Time progression happened for client%d\n\n",customerId); }
+		on sendToChannel from SENDCHANNEL to RECIEVESERVERS //do { printf("otide kaj receiveservers\n\n"); }
+
+		on recieveFromServer from RECIEVESERVERS to RCV //do { printf("Ja primi prvata vrednost. From RECEIVESERVERS to RCV\n\n"); }
+		
+		on singlton from RCV to RECIEVESERVERS1 provided ( (switchtoBackup==0 && ticker<7) && server1==0 && serverId==1 && decidedValue==-1 ) do { 
+					decidedValue=decidedValueS;
+					counter=counter+1;
+					//printf("value of counter is:%d Server:%d send value:%d to client:%d\n\n",counter,serverId,decidedValue,customerId);
+					server1=1;		
+		}
+		
+		on singlton from RCV to RECIEVESERVERS2 provided ( (switchtoBackup==0 && ticker<7) && server2==0 && serverId==2 && decidedValue==-1 ) do { 
+					decidedValue=decidedValueS;
+					counter=counter+1;
+					//printf("value of counter is:%d Server:%d send value:%d to client:%d\n\n",counter,serverId,decidedValue,customerId);
+					server2=1;		
+		}
+
+		on singlton from RCV to RECIEVESERVERS provided ( ticker>6 ) do { decidedValue=decidedValueS;}// printf("Otide of RCV na RECEIVESERVERS \n\n"); }
+		
+		on singlton from RECIEVESERVERS1 to RECIEVESERVERS provided (ticker>6) //do { printf("Otide of RCEVEIVESERVERS1 na RECEIVESERVERS \n\n"); }
+
+		on singlton from RECIEVESERVERS2 to RECIEVESERVERS provided (ticker>6) //do { printf("Otide of RCEVEIVESERVERS1 na RECEIVESERVERS \n\n"); }
+
+		on recieveFromServer from RECIEVESERVERS1 to RCV1 //do {printf("receiveFromServer kaj RECEIVESERVERS1\n\n");}
+
+	        on recieveFromServer from RECIEVESERVERS2 to RCV2 //do {printf("receiveFromServer kaj RECEIVESERVERS2\n\n");}
+		
+		
+
+		on singlton from RCV1 to FINAL provided ( (switchtoBackup==0 && ticker<7) && server2==0 && serverId==2 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					counter=counter+1;
+					//printf("value of counter is:%d Server:%d send value:%d to client:%d\n\n",counter,serverId,decidedValueS,customerId);
+					server2=1;		
+		}
+
+				on singlton from RCV1 to RECIEVESERVERS1 provided ( (switchtoBackup==0 && ticker<7) && server1==1 && serverId==1 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					//printf("Server 1 again send the same msg in plug:%d\n\n",PlugId);		
+                      		}
+   
+		                on singlton from RCV1 to RECIEVESERVERS1 provided ( (switchtoBackup==0 && ticker<7) && server2==1 && serverId==2 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					
+					//printf("Server 2 again send the same msg in plug:%d\n\n",PlugId);
+							
+		                }
+		
+
+		on singlton from RCV1 to RECIEVESERVERS provided ( (switchtoBackup==0 && ticker<7) && server2==0 && serverId==2 && decidedValue!=decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					switchtoBackup=1;
+					//printf("client:%d Accepted 2 different values\n\n",customerId);
+					server2=1;		
+		}
+
+		on singlton from RCV2 to FINAL provided ( (switchtoBackup==0 && ticker<7) && server1==0 && serverId==1 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					counter=counter+1;
+					//printf("value of counter is:%d Server:%d send value:%d to client:%d\n\n",counter,serverId,decidedValueS,customerId);
+					server1=1;		
+		}
+
+
+				on singlton from RCV2 to RECIEVESERVERS2 provided ( (switchtoBackup==0 && ticker<7) && server1==1 && serverId==1 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					//printf("Server 1 again send the same msg in plug:%d\n\n",PlugId);		
+                      		}
+   
+		                on singlton from RCV2 to RECIEVESERVERS2 provided ( (switchtoBackup==0 && ticker<7) && server2==1 && serverId==2 && decidedValue==decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					
+					//printf("Server 2 again send the same msg in plug:%d\n\n",PlugId);
+							
+		                }
+
+		
+
+		on singlton from RCV2 to RECIEVESERVERS provided ( (switchtoBackup==0 && ticker<7) && server1==0 && serverId==1 && decidedValue!=decidedValueS ) do { 
+					//decidedValue=decidedValueS;
+					switchtoBackup=1;
+					//printf("client:%d Accepted 2 different values\n\n",customerId);
+					server1=1;		
+		}
+
+
+		on tickerPort from RECIEVESERVERS to RECIEVESERVERS provided( (ticker<7||decidedValue==-1) && switchtoBackup==0) do { ticker=ticker+1;}// printf("It has passed %d ticks while waiting in client:%d\n\n",ticker,customerId); }
+		on tickerPort from RECIEVESERVERS1 to RECIEVESERVERS1 provided( (ticker<7||decidedValue==-1) && switchtoBackup==0) do { ticker=ticker+1;}// printf("It has passed %d ticks while waiting in client:%d\n\n",ticker,customerId); }
+		on tickerPort from RECIEVESERVERS2 to RECIEVESERVERS2 do { ticker=ticker+1; }// printf("It has passed %d ticks while waiting in client:%d\n\n",ticker,customerId); }
+		on sendToClient from FINAL to RESET provided (counter==2 && ticker<7) 
+	//	on ticker from RESET to RESET do { printf("Time progression happened for client%d\n\n",customerId); }
+	//	on newSession from RESET to START do {switchtoBackup=0; init_data(servers); ticker=0; decidedValue=-1; counter=0; printf("plug:%d restarted for new session\n\n",PlugId);}
+		on tickerPort from RESET to RESET //do { printf("Client%d already decided. Time progression for him\n\n",customerId); }
+		on switchB from RECIEVESERVERS to BACKUP provided ( (switchtoBackup==1 || ticker>6) && decidedValue!=-1) //do { printf ("Value of ticker is:%d, and value of SwitcheToBackup is:%d in client %d\n\n",ticker,switchtoBackup,customerId); }
+		on tickerPort from BACKUP to BACKUP //do { printf("Time progression on state backup in Client%d \n\n",customerId); }
+	end
+
+	atomic type Server(int id)
+
+		data int decidedValue
+		data int proposedValue
+		data int serverId
+		data int ClientId
+
+		export port ThirdType RcvFromChannel(ClientId,proposedValue)
+		export port ThirdType SendToServerC(ClientId,decidedValue)
+		
+		
+		
+		
+		place RECEIVE,SEND,START
+
+		initial to START do { serverId=id; decidedValue=-1;}
+		on RcvFromChannel from START to SEND do {  
+							decidedValue=proposedValue;
+						//	printf("Server:%d decided value %d\n\n",serverId,decidedValue);	
+                                                     }
+		on RcvFromChannel from RECEIVE to SEND do {decidedValue=proposedValue;}
+		on SendToServerC from SEND to RECEIVE 
+		//on msgLost from RECEIVE to RECEIVE
+	end
+
+	atomic type Switch
+		export port FirstType quorum
+		//export port FirstType backup
+		export port FirstType s
+
+		place QUORUM,BACKUP
+
+		initial to QUORUM
+		
+		on s from QUORUM to BACKUP
+		on quorum from QUORUM to QUORUM
+		//on backup from BACKUP to BACKUP 
+        end
+
+	//Dizining the channel
+
+        atomic type plugConnector(int id)
+		data int clientId
+		data int serverId
+		data int counter
+		data int server1
+		data int server2
+		data int proposedValue
+		data int decidedValue
+
+		export port SecondType rcvPlug(proposedValue)
+		export port ThirdType SendS1(clientId,proposedValue)
+		export port ThirdType SendS2(clientId,proposedValue)
+		export port ForthType rcvServer(clientId,serverId,decidedValue)
+		export port ThirdType sendClient(serverId,decidedValue)		
+		export port FirstType msglost	
+
+		place start,sendServer,rcvFromServer,sendToClient,send1,send2
+		initial to start,rcvFromServer do {server1=0;server2=0;clientId=id;counter=0;}
+
+		on msglost from sendServer to start //do { printf("msg lost in plugConnector:%d\n\n",clientId); }
+		on rcvPlug from start to sendServer //do { printf("Value:%d received in plugConnector:%d from client:%d\n\n",proposedValue,clientId,clientId); }
+		
+ 		//on SendS1 from sendServer to send1 provided (server1==0) do { server1=1;counter=counter+1; } // printf("Value:%d send to serverConnector1 from plugConnector:%d \n\n",proposedValue,clientId);}
+		//internal from send1 to sendServer
+		
+		//on SendS2 from sendServer to send2 provided (server2==0) do { server2=1;counter=counter+1; } // printf("Value:%d send to serverConnector2 from plugConnector:%d \n\n",proposedValue,clientId);}
+		//internal from send2 to sendServer		
+		
+		on SendS1 from sendServer to sendServer  //do {  printf("Value:%d send to serverConnector1 from plugConnector:%d again\n\n",proposedValue,clientId);  }
+		on SendS2 from sendServer to sendServer  //do {  printf("Value:%d send to serverConnector2 from plugConnector:%d again\n\n",proposedValue,clientId);  }
+		//internal from sendServer to start provided (counter==2)
+
+		on rcvServer from rcvFromServer to sendToClient //do { printf("Received value:%d in plugConnector:%d from serverConn%d\n\n",decidedValue,clientId,serverId); }
+		on sendClient from sendToClient to rcvFromServer
+	end
+
+	atomic type ServerConnector(int id)
+		data int clientIdSend
+		data int clientIdRcv
+		data int serverId
+		data int proposed
+		data int decided
+
+		export port ThirdType rcvPlugC(clientIdRcv,proposed)
+		export port ThirdType sendServer(clientIdRcv,proposed)
+		export port FirstType msgLoss
+		export port FirstType crash
+		export port ThirdType rcvServer(clientIdSend,decided)
+		export port ForthType sendPlug(clientIdSend,serverId,decided)
+
+		place rcvPlug,sendToServer,rcvFromServer,sendPlugC,crashState
+
+		initial to rcvPlug,rcvFromServer do { serverId=id; }
+
+		on rcvPlugC from rcvPlug to sendToServer //do { printf("Received value:%d in serverConn:%d from plugConn:%d\n\n",proposed,serverId,clientIdRcv); }
+		on msgLoss from sendToServer to rcvPlug //do {printf("Value lost in serverConn:%d from plugConn:%d \n\n",serverId,clientIdRcv);}
+		on crash from sendToServer to crashState //do { printf("Value lost in serverConn:%d from plugConn:%d SERVER CRASHED\n\n",serverId,clientIdRcv); }
+		on rcvPlugC from crashState to crashState //do { printf("Value:%d received in serverConn:%d from plugConn:%d but never delivered, the server has crasherd\n\n",proposed,serverId,clientIdRcv); }
+		on sendServer from sendToServer to rcvPlug //do { printf("Value:%d send from Client:%d to server:%d\n\n",proposed,clientIdRcv,serverId); }
+ 
+		on rcvServer from rcvFromServer to sendPlugC //do { printf("Value:%d received in serverConn:%d for client:%d\n\n",decided,serverId,clientIdSend); }
+		on sendPlug from sendPlugC to rcvFromServer  //do { printf("Value:%d send from serverConn:%d to client:%d\n\n",decided,serverId,clientIdSend); }
+	end
+
+
+atomic type monitor
+
+		data int decideVar
+		data int decideVar1
+
+		data int switchVar
+		data int switchVar1
+
+		data int errorVar
+
+		export port SecondType decide(decideVar)
+		export port SecondType decide1(decideVar1)
+		
+		export port SecondType switch0(switchVar)
+		export port SecondType switch1(switchVar1)
+
+		export port FirstType everything
+		export port FirstType tickerPort
+		export port FirstType singlton
+
+		place state1,state2,state3,state4,state5,state6,state7,state8
+
+		initial to state1 do {errorVar=0;}
+		
+		on tickerPort from state1 to state1
+		on decide from state1 to state2
+		on switch0 from state1 to state5
+
+		on tickerPort from state2 to state2
+		on decide1 from state2 to state3
+		on switch0 from state2 to state4		
+
+		on tickerPort from state5 to state5
+		on switch1 from state5 to state6 
+		on decide from state5 to state7
+
+		on tickerPort from state6 to state6	
+		on tickerPort from state7 to state7		
+
+		on singlton from state3 to state2 provided (decideVar==decideVar1)
+		on singlton from state3 to state8 provided (decideVar!=decideVar1)
+		on singlton from state4 to state2 provided (decideVar==switchVar)
+		on singlton from state4 to state8 provided (decideVar!=switchVar)				
+		
+		on singlton from state7 to state8 provided (errorVar==1 || decideVar!=switchVar)
+		on singlton from state7 to state2 provided (errorVar==0 && decideVar==switchVar)
+
+		on singlton from state6 to state5 provided (switchVar==switchVar1)
+		on singlton from state6 to state5 provided (switchVar!=switchVar1) do {errorVar=1;}
+
+		on everything from state1 to state1						
+		on everything from state2 to state2
+		on everything from state3 to state3
+		on everything from state4 to state4
+		on everything from state5 to state5
+		on everything from state6 to state6
+		on everything from state7 to state7
+		
+	end
+
+
+	//connectors
+
+	connector type SendValueToPlug(SecondType customer, SecondType customerPlug, FirstType s, FirstType m)
+		define customer customerPlug s m
+
+		on customer customerPlug s m down { customerPlug.x=customer.x; }
+	end
+
+	connector type SendFromPlugToPlugConnector(SecondType customerPlug, SecondType plugConn, FirstType s, FirstType m)
+		define customerPlug plugConn s m
+		
+		on customerPlug plugConn s m down { plugConn.x=customerPlug.x; }
+	end 
+
+	connector type SendFromPlugConToServerCon(ThirdType plugConn, ThirdType serverConn, FirstType m)
+		define plugConn serverConn m
+
+		on plugConn serverConn m down { serverConn.x=plugConn.x; serverConn.y=plugConn.y; }
+	end
+
+	connector type SendFromServerConnToServer(ThirdType serverConn, ThirdType server, FirstType m)
+		define serverConn server m
+
+		on serverConn server m down { server.x=serverConn.x; server.y=serverConn.y; }
+	end
+
+	connector type SendFromServerToServerC(ThirdType server, ThirdType serverC, FirstType m)
+		define server serverC m
+
+		on server serverC m down { serverC.x=server.x; serverC.y=server.y; }
+	end
+
+	connector type ServerCPlugC(ForthType serverC, ForthType plugC, FirstType m )
+		define serverC plugC m
+
+		on serverC plugC m provided (serverC.x==plugC.x) down { plugC.y=serverC.y; plugC.z=serverC.z; }
+	end
+
+	connector type PlugCToPlug (ThirdType plugC, ThirdType plug, FirstType s, FirstType m )
+		define plugC plug s m
+
+		on plugC plug s m down { plug.x=plugC.x; plug.y=plugC.y; }
+	end
+
+	connector type SendValueToClient(SecondType customer, SecondType customerPlug, FirstType s, SecondType m)
+		define customer customerPlug s m
+
+		on customer customerPlug s m down { customer.x=customerPlug.x; m.x=customerPlug.x; }
+	end
+
+	connector type switchToBackup(SecondType customerPlug, FirstType s, SecondType m)
+		define customerPlug s m
+
+		on customerPlug s m down {m.x=customerPlug.x;}
+	end
+
+	connector type clocker(FirstType c1,FirstType c2,FirstType c3,FirstType c4,FirstType m)
+		define c1 c2 c3 c4 m
+		on c1 c2 c3 c4 m provided true up {} down {}
+	end
+
+	connector type clockerN(FirstType c1,FirstType c2,FirstType m)
+		define c1 c2 m
+		on c1 c2 m provided true up {} down {}
+	end
+
+	connector type serverLooseMsg(FirstType serverC, FirstType server, FirstType m)
+		define serverC server m
+		on serverC server m provided true up {} down {}
+	end
+
+	connector type PlugLooseMsg (FirstType plugC, SecondType plug, FirstType m)
+		define plugC plug m
+		on plugC plug m provided true up {} down {}
+	end
+
+	connector type Singlton (FirstType plugC)
+		define plugC
+		on plugC provided true up {} down {}
+	end
+
+	connector type Singlton1 (FirstType plugC, FirstType m)
+		define plugC m
+		on plugC m provided true up {} down {}
+	end
+	
+	//the root compound
+
+	compound type Root
+		component Customer c1(1)
+		component Customer c2(2)
+		component Customer c3(3)
+		component Customer c4(4)
+		component CustomerPlugQuorum plug1(1)
+		component CustomerPlugQuorum plug2(2)
+		component CustomerPlugQuorum plug3(3)
+		component CustomerPlugQuorum plug4(4)	
+		
+		//channel components
+		component plugConnector plugC1(1)
+		component plugConnector plugC2(2)
+		component plugConnector plugC3(3)
+		component plugConnector plugC4(4)
+		component ServerConnector serverC1(1)
+		component ServerConnector serverC2(2)
+
+		component Server s1(1)
+		component Server s2(2)
+		component Switch sw
+		component Switch sw1
+		component Switch sw2
+		component Switch sw3
+		
+		component monitor m
+
+		//connecting the components
+
+		connector SendValueToPlug SVP1 (c1.propose,plug1.receive,sw.quorum,m.everything)
+		connector SendFromPlugToPlugConnector PlugToPlugConn1 (plug1.sendToChannel,plugC1.rcvPlug,sw.quorum,m.everything)
+		connector SendFromPlugConToServerCon plugConn1Toserv1Conn (plugC1.SendS1,serverC1.rcvPlugC,m.everything)
+		connector SendFromPlugConToServerCon plugConn1Toserv2Conn (plugC1.SendS2,serverC2.rcvPlugC,m.everything)
+		connector SendFromServerConnToServer serverConnToServer (serverC1.sendServer,s1.RcvFromChannel,m.everything)
+		connector Singlton1 server1Crash (serverC1.crash,m.everything)
+		connector Singlton1 server1LossMsg (serverC1.msgLoss,m.everything)
+		connector SendFromServerToServerC server1ToserverC1 (s1.SendToServerC,serverC1.rcvServer,m.everything)
+		connector ServerCPlugC serverC1ToplugC1 (serverC1.sendPlug,plugC1.rcvServer,m.everything)
+		connector ServerCPlugC serverC1ToplugC2 (serverC1.sendPlug,plugC2.rcvServer,m.everything)
+		connector ServerCPlugC serverC1ToplugC3 (serverC1.sendPlug,plugC3.rcvServer,m.everything)
+		connector ServerCPlugC serverC1ToplugC4 (serverC1.sendPlug,plugC4.rcvServer,m.everything)
+		connector PlugCToPlug plugC1Toplug1 (plugC1.sendClient,plug1.recieveFromServer,sw.quorum,m.everything)
+		connector SendValueToClient plug1Toclient1 (c1.decide,plug1.sendToClient,sw.quorum,m.decide)
+		connector SendValueToClient plug1Toclient11 (c1.decide,plug1.sendToClient,sw.quorum,m.decide1)
+		connector switchToBackup Switch1 (plug1.switchB,sw.s,m.switch0)
+		connector switchToBackup Switch11 (plug1.switchB,sw.s,m.switch1)
+		//connector switchToBackup Switch111 (plug1.switchB,sw.s,m.switch2)
+		//connector switchToBackup Switch1111 (plug1.switchB,sw.s,m.switch3)
+		//connector switchToBackup Switch11111 (plug1.switchB,sw.s,m.switch4)
+		connector Singlton1 Plug1LooseMsg (plugC1.msglost,m.everything)
+
+		connector Singlton monitorinternal (m.singlton)
+		connector Singlton plug1internal (plug1.singlton)
+		connector Singlton plug2internal (plug2.singlton)
+		connector Singlton plug3internal (plug3.singlton)
+		connector Singlton plug4internal (plug4.singlton)
+		connector clockerN clocker(plug3.tickerPort,plug4.tickerPort,m.tickerPort)
+		connector clockerN clocker1(plug1.tickerPort,plug2.tickerPort,m.tickerPort)
+
+		connector SendValueToPlug SVP2 (c2.propose,plug2.receive,sw1.quorum,m.everything)
+		connector SendFromPlugToPlugConnector PlugToPlugConn2 (plug2.sendToChannel,plugC2.rcvPlug,sw1.quorum,m.everything)
+		connector SendFromPlugConToServerCon plugConn2Toserv1Conn (plugC2.SendS1,serverC1.rcvPlugC,m.everything)
+		connector SendFromPlugConToServerCon plugConn2Toserv2Conn (plugC2.SendS2,serverC2.rcvPlugC,m.everything)
+		connector SendFromServerConnToServer serverConn2ToServer2 (serverC2.sendServer,s2.RcvFromChannel,m.everything)
+		connector Singlton1 server2Crash (serverC2.crash,m.everything)
+		connector Singlton1 server2LossMsg (serverC2.msgLoss,m.everything)
+		connector SendFromServerToServerC server2ToserverC2 (s2.SendToServerC,serverC2.rcvServer,m.everything)
+		connector ServerCPlugC serverC2ToplugC1 (serverC2.sendPlug,plugC1.rcvServer,m.everything)
+		connector ServerCPlugC serverC2ToplugC2 (serverC2.sendPlug,plugC2.rcvServer,m.everything)
+		connector ServerCPlugC serverC2ToplugC3 (serverC2.sendPlug,plugC3.rcvServer,m.everything)
+		connector ServerCPlugC serverC2ToplugC4 (serverC2.sendPlug,plugC4.rcvServer,m.everything)
+		connector PlugCToPlug plugC2Toplug2 (plugC2.sendClient,plug2.recieveFromServer,sw1.quorum,m.everything)
+		connector SendValueToClient plug2Toclient2 (c2.decide,plug2.sendToClient,sw1.quorum,m.decide)
+		connector SendValueToClient plug2Toclient22 (c2.decide,plug2.sendToClient,sw1.quorum,m.decide1)
+		connector switchToBackup Switch2 (plug2.switchB,sw1.s,m.switch0)
+		connector switchToBackup Switch22 (plug2.switchB,sw1.s,m.switch1)
+		//connector switchToBackup Switch222 (plug2.switchB,sw1.s,m.switch2)
+		//connector switchToBackup Switch2222 (plug2.switchB,sw1.s,m.switch3)
+		//connector switchToBackup Switch22222 (plug2.switchB,sw1.s,m.switch4)
+		connector Singlton1 Plug2LooseMsg (plugC2.msglost,m.everything)
+
+		connector SendValueToPlug SVP3 (c3.propose,plug3.receive,sw2.quorum,m.everything)
+		connector SendFromPlugToPlugConnector PlugToPlugConn3 (plug3.sendToChannel,plugC3.rcvPlug,sw2.quorum,m.everything)
+		connector SendFromPlugConToServerCon plugConn3Toserv1Conn (plugC3.SendS1,serverC1.rcvPlugC,m.everything)
+		connector SendFromPlugConToServerCon plugConn3Toserv2Conn (plugC3.SendS2,serverC2.rcvPlugC,m.everything)
+		//connector SendFromServerConnToServer serverConn2ToServer2 (serverC2.sendServer,s2.RcvFromChannel,m.everything)
+		//connector Singlton server2Crash (serverC2.crash,m.everything)
+		//connector Singlton server2LossMsg (serverC2.msgLoss,m.everything)
+		//connector SendFromServerToServerC server2ToserverC2 (s2.SendToServerC,serverC2.rcvServer)
+		//connector ServerCPlugC serverC2ToplugC1 (serverC2.sendPlug,plugC1.rcvServer)
+		//connector ServerCPlugC serverC2ToplugC2 (serverC2.sendPlug,plugC2.rcvServer)
+		connector PlugCToPlug plugC3Toplug3 (plugC3.sendClient,plug3.recieveFromServer,sw2.quorum,m.everything)
+		connector SendValueToClient plug3Toclient3 (c3.decide,plug3.sendToClient,sw2.quorum,m.decide)
+		connector SendValueToClient plug3Toclient33 (c3.decide,plug3.sendToClient,sw2.quorum,m.decide1)
+		connector switchToBackup Switch3 (plug3.switchB,sw2.s,m.switch0)
+		connector switchToBackup Switch33 (plug3.switchB,sw2.s,m.switch1)
+		//connector switchToBackup Switch333 (plug3.switchB,sw2.s,m.switch2)
+		//connector switchToBackup Switch3333 (plug3.switchB,sw2.s,m.switch3)
+		//connector switchToBackup Switch33333 (plug3.switchB,sw2.s,m.switch4)
+		connector Singlton1 Plug3LooseMsg (plugC3.msglost,m.everything)
+
+		connector SendValueToPlug SVP4 (c4.propose,plug4.receive,sw3.quorum,m.everything)
+		connector SendFromPlugToPlugConnector PlugToPlugConn4 (plug4.sendToChannel,plugC4.rcvPlug,sw3.quorum,m.everything)
+		connector SendFromPlugConToServerCon plugConn4Toserv1Conn (plugC4.SendS1,serverC1.rcvPlugC,m.everything)
+		connector SendFromPlugConToServerCon plugConn4Toserv2Conn (plugC4.SendS2,serverC2.rcvPlugC,m.everything)
+		//connector SendFromServerConnToServer serverConn2ToServer2 (serverC2.sendServer,s2.RcvFromChannel,m.everything)
+		//connector Singlton server2Crash (serverC2.crash,m.everything)
+		//connector Singlton server2LossMsg (serverC2.msgLoss,m.everything)
+		//connector SendFromServerToServerC server2ToserverC2 (s2.SendToServerC,serverC2.rcvServer)
+		//connector ServerCPlugC serverC2ToplugC1 (serverC2.sendPlug,plugC1.rcvServer)
+		//connector ServerCPlugC serverC2ToplugC2 (serverC2.sendPlug,plugC2.rcvServer)
+		connector PlugCToPlug plugC4Toplug4 (plugC4.sendClient,plug4.recieveFromServer,sw3.quorum,m.everything)
+		connector SendValueToClient plug4Toclient4 (c4.decide,plug4.sendToClient,sw3.quorum,m.decide)
+		connector SendValueToClient plug4Toclient44 (c4.decide,plug4.sendToClient,sw3.quorum,m.decide1)
+		connector switchToBackup Switch4 (plug4.switchB,sw3.s,m.switch0)
+		connector switchToBackup Switch44 (plug4.switchB,sw3.s,m.switch1)
+	//	connector switchToBackup Switch444 (plug4.switchB,sw3.s,m.switch2)
+	//	connector switchToBackup Switch4444 (plug4.switchB,sw3.s,m.switch3)
+	//	connector switchToBackup Switch44444 (plug4.switchB,sw3.s,m.switch4)
+		connector Singlton1 Plug4LooseMsg (plugC4.msglost,m.everything)				
+
+		//priority scheduler clock:* < plug1Toclient1:*  
+		//priority scheduler2 clock:* < plug2Toclient2:*
+		//priority scheduler3 clock:* < plug1Toclient11:*  	
+		//priority scheduler4 clock:* < plug2Toclient22:*
+		//priority scheduler5 clock:*< *:*
+		//priority scheduler6 plug1Toclient1:* < plug2Toclient2:*
+		//priority scheduler7 plugC1Toplug1:* < Switch1:* 
+		//priority scheduler8 plugC2Toplug2:* < Switch2:* 
+		//priority scheduler9 plugC1Toplug1:* < Switch11:* 
+		//priority scheduler10 plugC2Toplug2:* < Switch22:* 
+	end
+		component Root start
+end

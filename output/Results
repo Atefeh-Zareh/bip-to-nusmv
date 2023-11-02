@@ -1,0 +1,29 @@
+Quorum42	wordSize = 2	:	58862	113723	82569	81353	131724	->	93646.2
+Quorum42e	wordSize = 2	:	175299	82940	110114	109469	71487	->	109861.8
+
+Quorum42	wordSize = 3	:	83328	121090	116722	116722	94448	->	106462
+Quorum42e	wordSize = 3	:	112691	127507	90466	88121	88121	->	101381.2
+
+Quorum42	wordSize = 4	:	88121	65948	96662	131312	131800	->	102768.6
+Quorum42e	wordSize = 4	:	70408	155723	73406	153115	84353	->	107401
+
+Quorum42	wordSize = 5	:	87531	121802	121802	139676	100764	->	114315
+Quorum42e	wordSize = 5	:	94710	95934	100994	122333	100994	->	102993
+
+Quorum42	wordSize = 6	:	81271	99953	81271	99953	148418	->	102173.2
+Quorum42e	wordSize = 6	:	152305	128441	152305	204840	103989	->	148376
+
+Quorum42	wordSize = 8	:	86547	133185	104818	120952	121320	->	113364.4
+Quorum42e	wordSize = 8	:	118542	185488	85601	228554	
+
+Quorum42	wordSize = 16	:	
+Quorum42e	wordSize = 16	:	
+
+Quorum42	wordSize = 32	:	
+Quorum42e	wordSize = 32	:	
+
+
+50 words in each file
+
+
+SPEC AG ((plug1.Nuplace=NuSS7 & plug2.Nuplace=NuSS8) -> (plug1.NuVdecidedValue=plug2.NuVdecidedValue))

@@ -1,0 +1,49 @@
+model test
+
+port type ePort
+port type twoIntPort(int i, int j)
+
+connector type Singleton(ePort p)
+ define [p]
+end
+
+connector type SendRec(twoIntPort p, twoIntPort q)
+ define [p q]
+ on p q provided p.i > 0 down { q.j = 3; p.j = q.j + 3; }
+end
+
+atomic type First
+  data int x = 10
+  data int y = 5
+  export port ePort work1
+  export port ePort work2
+  export port twoIntPort trans(x, y)
+
+  place WORK1, WORK2, TRANSFER
+
+  initial to TRANSFER
+  on work1 from WORK1 to WORK2 provided y < 5 do y = 5;
+  on work2 from WORK2 to TRANSFER provided x != 10 do x = 10;
+  on trans from TRANSFER to WORK1
+end
+
+
+compound type Team
+
+  component First F1
+  component First F2
+
+  connector Singleton F1_work1(F1.work1)
+  connector Singleton F1_work2(F1.work2)
+
+  connector Singleton F2_work1(F2.work1)
+  connector Singleton F2_work2(F2.work2)
+
+  connector SendRec Communicate(F1.trans, F2.trans)
+end
+
+
+component Team T
+
+
+end
